@@ -15,5 +15,3 @@ Z
 *src/main/java/org/example/SvgCalendar.java,3\1\31da25ef07555a6c2f540958cd07219734de14e1
 \
 ,src/main/java/org/example/TextRectGroup.java,3\f\3f6d54d937a23e5ee288b1521b09c09d3e50b27d
-Z
-*src/main/java/org/example/GregService.java,1\0\10ec412291e8c9aea26fbfb9a05f93c5cd3a550d

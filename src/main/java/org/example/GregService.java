@@ -37,6 +37,8 @@ public class GregService {
     private static final String MONTH_HEADER_TEXT_STYLE = ".monthText{font-size:15pt; fill:#00457c; font-family:sans-serif; font-weight:bold}";
     private static final String HEADER_TEXT_STYLE = ".headerText{font-size:30pt; fill:white; font-family:Verdana}";
     private static final String FOOTER_TEXT_STYLE = ".footerText{font-size:12pt; fill:white; font-family:Verdana}";
+    private static final String HOLIDAY_TEXT_STYLE = ".holidayText{font-size:4pt; fill:#00457c; font-family:Verdana; font-weight:normal}";
+
 
     private static final String STYLES_STRING = new StringBuilder()
             .append(NORMAL_RECT_STYLE) //
@@ -49,6 +51,7 @@ public class GregService {
             .append(MONTH_HEADER_TEXT_STYLE) //
             .append(HEADER_TEXT_STYLE) //
             .append(FOOTER_TEXT_STYLE) //
+            .append(HOLIDAY_TEXT_STYLE) //
             .toString();
 
 
@@ -102,26 +105,31 @@ public class GregService {
                 String dayName = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.GERMANY)//
                         .substring(0, 2)//
                         .toUpperCase();
-                String dateString = date.format(DateTimeFormatter.ofPattern("dd-MM"));
+                String dateString = date.format(DateTimeFormatter.ofPattern("dd"));
                 //String fullDate = String.format("%s - %s", dayName, dateString);
 
                 //create svg rectangle
                 Rect rect = new Rect(x, y, RECT_WIDTH, RECT_HEIGHT, sclass);
 
                 //create svg text
-                Text dayText = new Text(dayName, x, y + RECT_HEIGHT, "dayText");
-                dayText.setTextAnchor("start");
-                dayText.setDominantBaseline("text-top");
+                Text dateText = new Text(dateString, x, y, "dateText");
+                dateText.setTextAnchor("start");
+                dateText.setDominantBaseline("hanging");
 
-                Text dateText = new Text(dateString, x + 15, y + RECT_HEIGHT, "dateText");
-                //dateText.setTextAnchor("start");
-                //dateText.setDominantBaseline("text-top");
+                Text dayText = new Text(dayName, x + 17, y, "dayText");
+                dayText.setTextAnchor("start");
+                dayText.setDominantBaseline("hanging");
+
+                Text holidayText = new Text("holiday", x + RECT_WIDTH, y + RECT_HEIGHT, "holidayText");
+                holidayText.setTextAnchor("end");
+                holidayText.setDominantBaseline("top-bottom");
 
                 //bind svg rectangle and text in <g> textrectgroup together
                 TextRectGroup group = new TextRectGroup();
                 group.setRect(rect);
                 group.setText(dayText);
                 group.setSecondText(dateText);
+                group.setThirdText(holidayText);
 
                 //add to Array List
                 textRectGroups.add(group);
