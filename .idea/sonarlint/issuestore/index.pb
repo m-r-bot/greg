@@ -1,16 +1,8 @@
 
-V
-&src/main/java/org/example/Holiday.java,d\7\d72c185898cfcdd88e9773fbeb6d19f0473dcbc8
-R
-"src/test/java/GregServiceTest.java,c\d\cd8b93c7df2286f724f2bbb9ed06a4497cb9f0a8
 S
 #src/main/java/org/example/Text.java,b\0\b040d425df7c159fcd3dde1a15402f296861390f
-]
--src/main/java/org/example/HolidayService.java,1\9\19e8be2e1689d6d4abf098adf5dc5e1e60a23f68
 S
 #src/main/java/org/example/Rect.java,b\b\bb2b09f50ae122f8c89d632c495e5b179c578193
-S
-#src/main/java/org/example/Main.java,0\b\0ba1b9c7a4878802f938e331cc2d8a042087ec6b
 Z
 *src/main/java/org/example/SvgCalendar.java,3\1\31da25ef07555a6c2f540958cd07219734de14e1
 \

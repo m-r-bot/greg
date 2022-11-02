@@ -1,18 +1,19 @@
 package org.example;
 
-import org.jetbrains.annotations.NotNull;
+
+import org.example.types.FederalState;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.File;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.YearMonth;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class GregService {
 
@@ -35,24 +36,80 @@ public class GregService {
     private static final String DATE_TEXT_STYLE = ".dateText{font-size:7pt; fill:#00457c; font-family:Verdana; font-weight:bold}";
     private static final String DAY_TEXT_STYLE = ".dayText{font-size:7pt; fill:#00457c; font-family:Verdana; font-weight:normal}";
     private static final String MONTH_HEADER_TEXT_STYLE = ".monthText{font-size:15pt; fill:#00457c; font-family:sans-serif; font-weight:bold}";
-    private static final String HEADER_TEXT_STYLE = ".headerText{font-size:30pt; fill:white; font-family:Verdana}";
+    private static final String HEADER_TEXT_STYLE = ".headerText{font-size:75pt; fill:white; font-family:Verdana}";
     private static final String FOOTER_TEXT_STYLE = ".footerText{font-size:12pt; fill:white; font-family:Verdana}";
     private static final String HOLIDAY_TEXT_STYLE = ".holidayText{font-size:4pt; fill:#00457c; font-family:Verdana; font-weight:normal}";
 
 
-    private static final String STYLES_STRING = new StringBuilder()
-            .append(NORMAL_RECT_STYLE) //
-            .append(WEEKEND_RECT_STYLE) //
-            .append(HOLIDAY_RECT_STYLE) //
-            .append(HEADER_RECT_STYLE) //
-            .append(NORMAL_TEXT_STYLE) //
-            .append(DATE_TEXT_STYLE) //
-            .append(DAY_TEXT_STYLE) //
-            .append(MONTH_HEADER_TEXT_STYLE) //
-            .append(HEADER_TEXT_STYLE) //
-            .append(FOOTER_TEXT_STYLE) //
-            .append(HOLIDAY_TEXT_STYLE) //
-            .toString();
+    private final FederalState federalState;
+
+    private int currentMonth = 0;
+    private boolean currentDayIsHoliday = false;
+    private String holidayName = "";
+
+    private HolidayService hs = ();
+
+    public GregService(FederalState federalState) {
+        this.federalState = federalState;
+    }
+
+    private static final String STYLES_STRING = NORMAL_RECT_STYLE + //
+            WEEKEND_RECT_STYLE + //
+            HOLIDAY_RECT_STYLE + //
+            HEADER_RECT_STYLE + //
+            NORMAL_TEXT_STYLE + //
+            DATE_TEXT_STYLE + //
+            DAY_TEXT_STYLE + //
+            MONTH_HEADER_TEXT_STYLE + //
+            HEADER_TEXT_STYLE + //
+            FOOTER_TEXT_STYLE + //
+            HOLIDAY_TEXT_STYLE //
+            ;
+
+    public SvgCalendar getGroggy(int year) {
+
+        for (LocalDate currentDay : getRangeOfDays(year)) {
+
+            if(currentDayIsStartOfNewMonth(currentDay)) {
+                initNewMonth();
+            }
+
+            if(isWeekend(currentDay)) {
+                initWeekend();
+
+            } else if (isHolidayInCurrentFederalState(currentDay)) {
+                initHolidayInCurrentSate()
+
+            } else if(isHolidayInOtherFederalState()) {
+                initHolidayInOtherState()
+            }
+
+            printDay()
+        }
+
+
+    }
+
+    private boolean isHolidayInCurrentFederalState(LocalDate currentDay) {
+
+        HolidayService holidayService = new HolidayService();
+        Optional<Holiday> holidayForCurrentDate = holidayService.getHolidaysByYearAndState(currentDay.getYear(), this.federalState)
+                .stream()
+                .filter(holiday -> holiday.isHoliday(currentDay))
+                .findFirst();
+        return holidayForCurrentDate.isPresent();
+    }
+
+    private boolean currentDayIsStartOfNewMonth(LocalDate currentDay) {
+        return currentMonth != currentDay.getMonth().getValue();
+    }
+
+    private static List<LocalDate> getRangeOfDays(int year) {
+        LocalDate startDate = LocalDate.of(year, 1, 1);
+        LocalDate endDate = LocalDate.of(year +1, 1,1);
+
+         return startDate.datesUntil(endDate, Period.ofDays(1)).toList();
+    }
 
 
     public static SvgCalendar getGreg(int year, String state) {
@@ -67,69 +124,74 @@ public class GregService {
         style.setStyles(STYLES_STRING);
 
         HolidayService holidayService = new HolidayService();
-        Set<LocalDate> holidayDates = holidayService.getGermanHolidaysByYearAndState(year, state).stream()//
-                .map(holiday -> holiday.getDate())//
-                .collect(Collectors.toSet());
-
-        // check if year is a leap year
-        boolean isLeapYear = (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0)) ? true : false;
-
 
         ArrayList<TextRectGroup> textRectGroups = new ArrayList<>();
         //TODO deal with month 13 issue
         //loop over months
-        Month month = null;
         for (int cmonth = 0; cmonth < 12; cmonth++) {
-            month = Month.of(cmonth + 1);
+            Month month = Month.of(cmonth + 1);
             Text monthHeader = new Text();
             //monthHeader = getMonthHeader(month);
 
             // initialize x coordinate
-            double x = (cmonth * RECT_WIDTH) + FRAME;
+            double xCoordinateOfCurrentMonth = (cmonth * RECT_WIDTH) + FRAME;
 
             // loop over days for 1 month
-            for (int day = 0; day < month.length(isLeapYear); day++) {
+            for (int day = 0; day < month.length(isLeapYear(year)); day++) {
 
                 //initialize y coordinate
-                double y = FRAME + HEADER_HEIGHT + UPPER_SPACE_HEIGHT + (day * RECT_HEIGHT);
+                double y = getY(day);
 
                 LocalDate date = LocalDate.of(year, month, day + 1);
-                int dval = date.getDayOfWeek().getValue();
+                DayOfWeek curDayOfWeek = date.getDayOfWeek();
 
-                boolean isHoliday = holidayDates.contains(date);
+                boolean isWeekend =  curDayOfWeek == DayOfWeek.SUNDAY || curDayOfWeek == DayOfWeek.SATURDAY ;
+
+                Optional<Holiday> holidayForCurrentDate = holidayService.getHolidaysByYearAndState(year, FederalState.valueOf(state))
+                        .stream()
+                        .filter(holiday -> holiday.isHoliday(date))
+                        .findFirst();
+
+                boolean isHolidayInState = holidayForCurrentDate.isPresent();
 
                 //check for colour of day rectangle
-                String sclass = isHoliday ? "fRect" : (dval == 6 || dval == 7) ? "hRect" : "nRect";
+                String sclass = isHolidayInState ? "fRect" : isWeekend ? "hRect" : "nRect";
 
                 // day text
                 String dayName = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.GERMANY)//
                         .substring(0, 2)//
                         .toUpperCase();
                 String dateString = date.format(DateTimeFormatter.ofPattern("dd"));
-                //String fullDate = String.format("%s - %s", dayName, dateString);
 
                 //create svg rectangle
-                Rect rect = new Rect(x, y, RECT_WIDTH, RECT_HEIGHT, sclass);
+                Rect rect = new Rect(xCoordinateOfCurrentMonth, y, RECT_WIDTH, RECT_HEIGHT, sclass);
 
                 //create svg text
-                Text dateText = new Text(dateString, x, y, "dateText");
+                Text dateText = new Text(dateString, xCoordinateOfCurrentMonth, y, "dateText");
                 dateText.setTextAnchor("start");
                 dateText.setDominantBaseline("hanging");
 
-                Text dayText = new Text(dayName, x + 17, y, "dayText");
+                Text dayText = new Text(dayName, xCoordinateOfCurrentMonth + 17, y, "dayText");
                 dayText.setTextAnchor("start");
                 dayText.setDominantBaseline("hanging");
 
-                Text holidayText = new Text("holiday", x + RECT_WIDTH, y + RECT_HEIGHT, "holidayText");
-                holidayText.setTextAnchor("end");
-                holidayText.setDominantBaseline("top-bottom");
+
+
 
                 //bind svg rectangle and text in <g> textrectgroup together
                 TextRectGroup group = new TextRectGroup();
                 group.setRect(rect);
                 group.setText(dayText);
                 group.setSecondText(dateText);
-                group.setThirdText(holidayText);
+
+                if (isHolidayInState) {
+
+                    Text holidayText = new Text(holidayForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT, "holidayText");
+                    holidayText.setTextAnchor("end");
+                    holidayText.setDominantBaseline("top-bottom");
+
+                    group.setThirdText(holidayText);
+                }
 
                 //add to Array List
                 textRectGroups.add(group);
@@ -146,6 +208,20 @@ public class GregService {
         svg.setViewbox(String.format("0 0 %d %d", (int) WIDTH, (int) HEIGHT));
         return svg;
     }
+
+    private static double getY(int day) {
+        double y = FRAME + HEADER_HEIGHT + UPPER_SPACE_HEIGHT + (day * RECT_HEIGHT);
+        return y;
+    }
+
+    private static boolean isLeapYear(int year) {
+        return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+    }
+
+    private static boolean compareDates(LocalDate dateHoliday, LocalDate curDate) {
+        return dateHoliday.equals(curDate);
+    }
+
 
     public static void writeCalendarAsSvg(SvgCalendar calendar, String name) {
         try {
@@ -168,18 +244,20 @@ public class GregService {
         }
     }
 
-    public static @NotNull TextRectGroup getHeader(int year, String state) {
+    public static TextRectGroup getHeader(int year, String icon) {
         TextRectGroup headerGroup = new TextRectGroup();
         headerGroup.setRect(new Rect(FRAME, FRAME, WIDTH - 2*FRAME, HEADER_HEIGHT, "headerRect"));
-        Text headerText = new Text(String.format("ITEMIS CALENDAR %d - State: %s", year, state), WIDTH / 2, HEADER_HEIGHT / 2, "headerText");
-        headerText.setTextAnchor("middle");
-        headerText.setDominantBaseline("middle");
+        Text headerText = new Text(String.format("%d", year), WIDTH - 1.5*FRAME, HEADER_HEIGHT + 5, "headerText");
+        headerText.setTextAnchor("end");
+        headerText.setDominantBaseline("text-top");
+
+        Text iconText = new Text();
         headerGroup.setText(headerText);
 
         return headerGroup;
     }
 
-    public static @NotNull TextRectGroup getFooter (int year, String state) {
+    public static TextRectGroup getFooter (int year, String state) {
         // create and fill footer
         TextRectGroup footerGroup = new TextRectGroup();
         footerGroup.setRect(new Rect(FRAME, HEIGHT - FOOTER_HEIGHT - FRAME, WIDTH - 2*FRAME, FOOTER_HEIGHT, "headerRect"));
@@ -196,6 +274,8 @@ public class GregService {
         Text text = new Text(String.format("%d", monthHeader), FRAME, HEADER_HEIGHT - UPPER_SPACE_HEIGHT - FRAME + 1, "monthText");
         return text;
     }*/
+
+
 
 
 

@@ -1,6 +1,8 @@
 package org.example;
 
 
+import org.example.types.FederalState;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
@@ -116,9 +118,9 @@ public class HolidayService {
         return holidays;
     }
 
-    public List<Holiday> getGermanHolidaysByYearAndState(int year, String state){
+    public List<Holiday> getHolidaysByYearAndState(int year, FederalState state){
         List<Holiday> holidays = this.determineGermanHolidays(year);
-        List<Holiday> regionHolidays = holidays.stream().filter(holiday -> holiday.isInRegion(state)).toList();
+        List<Holiday> regionHolidays = holidays.stream().filter(holiday -> holiday.isInRegion(state.getFederalStateName())).toList();
         return regionHolidays;
     }
 

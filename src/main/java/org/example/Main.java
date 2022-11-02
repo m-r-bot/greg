@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.types.FederalState;
+
 import java.util.Locale;
 
 public class Main {
@@ -8,16 +10,14 @@ public class Main {
 
     public static void main(String[] args) {
 
-        enum state{
-            BW, BY, ST, BB, HE, NW, RP, SL, BE, HB, HH, SN, TH, SH, MV, NV, NI
-        }
-
-        //add locale default because double vals are using comma instead of dot otherwise?!
+        //add locale default because double values are using comma instead of dot otherwise?!
         Locale.setDefault(Locale.US);
 
         //input values for desired year and state
         SvgCalendar calendar = GregService.getGreg(2022,"Sachsen");
-        GregService.writeCalendarAsSvg(calendar,"calendario-v01");
+        GregService service = new GregService(FederalState.BY);
+        service.getGroggy(2023);
+        GregService.writeCalendarAsSvg(calendar, "calendario-v01");
     }
 
 }
