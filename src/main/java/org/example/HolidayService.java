@@ -124,5 +124,9 @@ public class HolidayService {
         return regionHolidays;
     }
 
-
+    public List<Holiday> getHolidaysByYearAndOtherFederalStates(int year, FederalState state){
+        List<Holiday> holidays = this.determineGermanHolidays(year);
+        List<Holiday> regionHolidays = holidays.stream().filter(holiday -> holiday.isNotInRegion(state.getFederalStateName())).toList();
+        return regionHolidays;
+    }
     }
