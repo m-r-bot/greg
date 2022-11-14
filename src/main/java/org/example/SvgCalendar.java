@@ -31,7 +31,7 @@ public class SvgCalendar {
     @XmlElement(name = "g")
     TextRectGroup footer;
 
-    @XmlElement(name = "text")
+    @XmlElement(name = "g")
     Text monthHeader;
 
     public void setViewbox(String viewbox) {
@@ -62,7 +62,7 @@ public class SvgCalendar {
         this.footer = footer;
     }
 
-    public void setMonthHeader (Text monthHeader) {this.monthHeader = monthHeader;}
+    public void setMonthHeader (ArrayList <Text> monthHeaderText) {this.monthHeader = monthHeader;}
 
     public SvgCalendar() {
         setXmlns("http://www.w3.org/2000/svg");
