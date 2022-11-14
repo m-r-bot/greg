@@ -19,9 +19,9 @@ public class GregServiceTest {
 
     @Test
     public void testIsHolidayInOtherState(){
-          var currentDay =LocalDate.of(2022, 3, 1);
-        boolean isHolidayInOtherState = gregService.isHolidayInOtherFederalState(currentDay);
+          var currentDay =LocalDate.of(2022, 8, 1);
+          boolean isHolidayInOtherState = gregService.isHolidayInOtherFederalState(currentDay);
 
-        Assert.assertTrue(isHolidayInOtherState);
+          Assert.assertTrue(isHolidayInOtherState);
     }
 }

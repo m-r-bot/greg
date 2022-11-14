@@ -10,6 +10,8 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 public class HolidayService {
+    
+    //TODO add FAstnacht/ Karneval
     public LocalDate calculateEasterDate(int year) {
         // Gaußsche Osterformel
         final int a = year % 19;
@@ -69,9 +71,12 @@ public class HolidayService {
         final LocalDate PFINGST_SONNTAG = OSTER_SONNTAG.plusDays(49);
         final LocalDate PFINGST_MONTAG = PFINGST_SONNTAG.plusDays(1);
         final LocalDate FRONLEICHNAM = OSTER_SONNTAG.plusDays(60);
+        final LocalDate ASCHERMITTWOCH = OSTER_SONNTAG.minusDays(46);
 
         final LocalDate BUSS_UND_BETTAG = LocalDate.of(year, Month.NOVEMBER, 23)
                 .with(TemporalAdjusters.previous(DayOfWeek.WEDNESDAY));
+        final LocalDate ROSENMONTAG = ASCHERMITTWOCH.with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+        final LocalDate FASTNACHT = LocalDate.from(ROSENMONTAG.plusDays(1));
 
         Map<String, LocalDate> nationalHolidays = new HashMap<>();
         nationalHolidays.put("Neujahr", NEUJAHR);
@@ -96,6 +101,8 @@ public class HolidayService {
         regionalHolidays.put("Mariä Himmelfahrt", MARIA_HIMMELFAHRT);
         regionalHolidays.put("Reformationstag", REFORMATIONSTAG);
         regionalHolidays.put("Allerheiligen", ALLERHEILIGEN);
+        regionalHolidays.put("Rosenmontag", ROSENMONTAG);
+        regionalHolidays.put("Fastnacht", FASTNACHT);
 
         Map<String, List<String>> regionalHolidaysRegions = new HashMap<>();
         regionalHolidaysRegions.put("Heilige Drei Könige", Arrays.asList(BW, BY, ST));
@@ -109,6 +116,9 @@ public class HolidayService {
         regionalHolidaysRegions.put("Reformationstag",
                 Arrays.asList(BB, HE, HB, HH, MV, NI, SN, ST, SH, TH));
         regionalHolidaysRegions.put("Allerheiligen", Arrays.asList(BW, BY, NV, RP, SL));
+        //not an actual regional holiday but treated as such in regions where carnival is a big thing, e.g. Kölln
+        regionalHolidaysRegions.put("Rosenmontag", Arrays.asList(BW));
+        regionalHolidaysRegions.put("Fastnacht", Arrays.asList(BW));
 
         List<Holiday> holidays = new ArrayList<>();
 

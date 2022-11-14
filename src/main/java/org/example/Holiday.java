@@ -67,5 +67,16 @@ public class Holiday {
             return false;
         }
     }
+    public boolean isNotInRegion(String region){
+        if (this.national) {
+            return true;
+        }
+        if(this.regions.stream().anyMatch(region::equals)){
+            return false;
+        }else {
+            return true;
+        }
+    }
+
 }
 
