@@ -77,6 +77,7 @@ public class HolidayService {
                 .with(TemporalAdjusters.previous(DayOfWeek.WEDNESDAY));
         final LocalDate ROSENMONTAG = ASCHERMITTWOCH.with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
         final LocalDate FASTNACHT = LocalDate.from(ROSENMONTAG.plusDays(1));
+        final LocalDate WEIBERFASTNACHT = ASCHERMITTWOCH.with(TemporalAdjusters.previous(DayOfWeek.THURSDAY));
 
         Map<String, LocalDate> nationalHolidays = new HashMap<>();
         nationalHolidays.put("Neujahr", NEUJAHR);
@@ -86,8 +87,8 @@ public class HolidayService {
         nationalHolidays.put("Pfingstmontag", PFINGST_MONTAG);
         nationalHolidays.put("Tag der Arbeit", TAG_DER_ARBEIT);
         nationalHolidays.put("Tag der Deutschen Einheit", TAG_DER_DEUTSCHEN_EINHEIT);
-        nationalHolidays.put("Erster Weihnachtstag", ERSTER_WEIHNACHTSTAG);
-        nationalHolidays.put("Zweiter Weihnachtstag", ZWEITER_WEIHNACHTSTAG);
+        nationalHolidays.put("1. Weihnachtstag", ERSTER_WEIHNACHTSTAG);
+        nationalHolidays.put("2. Weihnachtstag", ZWEITER_WEIHNACHTSTAG);
 
         // Date of local holidays.
         Map<String, LocalDate> regionalHolidays = new HashMap<>();
@@ -103,6 +104,7 @@ public class HolidayService {
         regionalHolidays.put("Allerheiligen", ALLERHEILIGEN);
         regionalHolidays.put("Rosenmontag", ROSENMONTAG);
         regionalHolidays.put("Fastnacht", FASTNACHT);
+        regionalHolidays.put("Weiberfastnacht", WEIBERFASTNACHT);
 
         Map<String, List<String>> regionalHolidaysRegions = new HashMap<>();
         regionalHolidaysRegions.put("Heilige Drei Könige", Arrays.asList(BW, BY, ST));
@@ -119,6 +121,7 @@ public class HolidayService {
         //not an actual regional holiday but treated as such in regions where carnival is a big thing, e.g. Kölln
         regionalHolidaysRegions.put("Rosenmontag", Arrays.asList(BW));
         regionalHolidaysRegions.put("Fastnacht", Arrays.asList(BW));
+        regionalHolidaysRegions.put("Weiberfastnacht", Arrays.asList(BW));
 
         List<Holiday> holidays = new ArrayList<>();
 
