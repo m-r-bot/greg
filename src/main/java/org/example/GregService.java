@@ -10,6 +10,7 @@ import java.io.File;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.time.temporal.WeekFields;
 import java.util.*;
 
 public class GregService {
@@ -38,6 +39,7 @@ public class GregService {
     private static final String HEADER_TEXT_STYLE = ".headerText{font-size:75pt; fill:white; font-family:Verdana}";
     private static final String FOOTER_TEXT_STYLE = ".footerText{font-size:12pt; fill:white; font-family:Verdana}";
     private static final String HOLIDAY_TEXT_STYLE = ".holidayText{font-size:3pt; fill:#00457c; font-family:Verdana; font-weight:normal}";
+    private static final String CALENDAR_WEEK_TEXT_STYLE = ".calendarWeekText{font-size:10pt; fill:#f0f1f3; font-family:Verdana; font-weight:bold}";
 
     private static final String STYLES_STRING = NORMAL_RECT_STYLE + //
             WEEKEND_RECT_STYLE + //
@@ -50,7 +52,8 @@ public class GregService {
             HEADER_TEXT_STYLE + //
             FOOTER_TEXT_STYLE + //
             HOLIDAY_TEXT_STYLE + //
-            HOLIDAY_IN_OTHER_STATE_RECT_STYLE
+            HOLIDAY_IN_OTHER_STATE_RECT_STYLE + //
+            CALENDAR_WEEK_TEXT_STYLE
             ;
 
     private FederalState federalState;
@@ -179,7 +182,9 @@ public class GregService {
         ArrayList<Text> monthHeaderText = new ArrayList<>();
         //TODO deal with month 13 issue
         //loop over months
-        for (int cmonth = 0; cmonth < 13; cmonth++) {
+        for (int cmonth = 0; cmonth < 12; cmonth++) {
+            //Month month;
+            //if (Month.of(cmonth+1)=13)
             Month month = Month.of(cmonth + 1);
 
             // initialize x coordinate
@@ -239,7 +244,7 @@ public class GregService {
 
                 if (isHolidayInState) {
 
-                    Text holidayText = new Text(holidayForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT, "holidayText");
+                    Text holidayText = new Text(holidayForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "holidayText");
                     holidayText.setTextAnchor("end");
                     holidayText.setDominantBaseline("top-bottom");
 
@@ -248,7 +253,7 @@ public class GregService {
 
                 if (isHolidayInOtherSates) {
 
-                    Text holidayText = new Text(holidayInOtherStateForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT, "holidayText");
+                    Text holidayText = new Text(holidayInOtherStateForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "holidayText");
                     holidayText.setTextAnchor("end");
                     holidayText.setDominantBaseline("top-bottom");
 
@@ -268,7 +273,7 @@ public class GregService {
         svg.setHeader(getHeader(year));
         svg.setMonthHeader(monthHeaderText);
         svg.setGroups(textRectGroups);
-        svg.setFooter(getFooter(year));
+        svg.setFooter(getFooter());
         svg.setViewbox(String.format("0 0 %d %d", (int) WIDTH, (int) HEIGHT));
         return svg;
     }
@@ -332,7 +337,7 @@ public class GregService {
         return headerGroup;
     }
 
-    public static TextRectGroup getFooter (int year) {
+    public static TextRectGroup getFooter () {
         // create and fill footer
         TextRectGroup footerGroup = new TextRectGroup();
         footerGroup.setRect(new Rect(FRAME, HEIGHT - FOOTER_HEIGHT - FRAME, WIDTH - 2*FRAME, FOOTER_HEIGHT, "headerRect"));
@@ -350,6 +355,13 @@ public class GregService {
         monthHeaderTextInMethod.setTextAnchor("middle");
         monthHeaderTextInMethod.setDominantBaseline("middle");
         return monthHeaderTextInMethod;
+    }
+
+    public static Text getCalendarWeek (LocalDate date) {
+        WeekFields weekField = WeekFields.of(Locale.GERMANY);
+        int valueOfCalendarWeek = date.get(weekField.weekOfWeekBasedYear());
+        Text calendarWeekText = new Text(valueOfCalendarWeek, );
+        return calendarWeekText;
     }
 
 

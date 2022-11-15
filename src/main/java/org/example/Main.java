@@ -14,7 +14,7 @@ public class Main {
         Locale.setDefault(Locale.US);
 
         //input values for desired year and state
-        SvgCalendar calendar = GregService.getGreg(2022,"SN");
+        SvgCalendar calendar = GregService.getGreg(2023,"SN");
 //        GregService service = new GregService(FederalState.BY);
 //        service.getGroggy(2023);
         GregService.writeCalendarAsSvg(calendar, "calendar-v06");
