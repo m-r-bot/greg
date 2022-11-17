@@ -10,8 +10,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 public class HolidayService {
-    
-    //TODO add FAstnacht/ Karneval
+
     public LocalDate calculateEasterDate(int year) {
         // Gaußsche Osterformel
         final int a = year % 19;

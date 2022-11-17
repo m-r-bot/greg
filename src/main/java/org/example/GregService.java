@@ -56,11 +56,11 @@ public class GregService {
             CALENDAR_WEEK_TEXT_STYLE
             ;
 
-    private FederalState federalState;
+    private final FederalState federalState;
     //needs to be zero for January to start
     private int currentMonth = 0;
     private boolean currentDayIsHoliday = false;
-    private String holidayName = "";
+
     public GregService(FederalState federalState) {
         this.federalState = federalState;
     }
@@ -118,7 +118,7 @@ public class GregService {
         svg.setHeader(getHeader(year));
         //svg.setMonthHeader(getMonthHeader(month));
         svg.setGroups(textRectGroups);
-        svg.setFooter(getFooter(year));
+        svg.setFooter(getFooter());
         svg.setViewbox(String.format("0 0 %d %d", (int) WIDTH, (int) HEIGHT));
         return svg;
 
@@ -180,15 +180,18 @@ public class GregService {
 
         ArrayList<TextRectGroup> textRectGroups = new ArrayList<>();
         ArrayList<Text> monthHeaderText = new ArrayList<>();
-        //TODO deal with month 13 issue
+
         //loop over months
-        for (int cmonth = 0; cmonth < 12; cmonth++) {
-            //Month month;
-            //if (Month.of(cmonth+1)=13)
-            Month month = Month.of(cmonth + 1);
+        for (int cmonth = 0; cmonth < 13; cmonth++) {
+
+            //TODO write if statement to add another year for second january
+            Month month = cmonth == 12 ? Month.of(1) : Month.of(cmonth + 1);
 
             // initialize x coordinate
             double xCoordinateOfCurrentMonth = (cmonth * RECT_WIDTH) + FRAME;
+
+            monthHeaderText.add(getMonthHeader(month));
+            //svg.setMonthHeader(monthHeaderText);
 
             // loop over days for 1 month
             for (int day = 0; day < month.length(isLeapYear(year)); day++) {
@@ -262,9 +265,11 @@ public class GregService {
 
                 //add to Array List
                 textRectGroups.add(group);
+
+
+                Text calendarWeekText = new Text();
+                calendarWeekText = getCalendarWeek(date);
             }
-            monthHeaderText.add(getMonthHeader(month));
-            //svg.setMonthHeader(monthHeaderText);
         }
 
 
@@ -273,6 +278,7 @@ public class GregService {
         svg.setHeader(getHeader(year));
         svg.setMonthHeader(monthHeaderText);
         svg.setGroups(textRectGroups);
+        //svg.setCalendarWeek(calenderWeekText);
         svg.setFooter(getFooter());
         svg.setViewbox(String.format("0 0 %d %d", (int) WIDTH, (int) HEIGHT));
         return svg;
@@ -360,7 +366,7 @@ public class GregService {
     public static Text getCalendarWeek (LocalDate date) {
         WeekFields weekField = WeekFields.of(Locale.GERMANY);
         int valueOfCalendarWeek = date.get(weekField.weekOfWeekBasedYear());
-        Text calendarWeekText = new Text(valueOfCalendarWeek, );
+        Text calendarWeekText = new Text(String.valueOf(valueOfCalendarWeek), FRAME, HEADER_HEIGHT, "calendarWeekText" );
         return calendarWeekText;
     }
 
