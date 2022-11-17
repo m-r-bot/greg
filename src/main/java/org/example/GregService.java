@@ -180,17 +180,21 @@ public class GregService {
 
         ArrayList<TextRectGroup> textRectGroups = new ArrayList<>();
         ArrayList<Text> monthHeaderText = new ArrayList<>();
+        boolean followingYear = false;
 
         //loop over months
         for (int cmonth = 0; cmonth < 13; cmonth++) {
 
-            //TODO write if statement to add another year for second january
+            if(cmonth == 12) {
+                followingYear = true;
+            }
             Month month = cmonth == 12 ? Month.of(1) : Month.of(cmonth + 1);
 
             // initialize x coordinate
             double xCoordinateOfCurrentMonth = (cmonth * RECT_WIDTH) + FRAME;
 
-            monthHeaderText.add(getMonthHeader(month));
+        
+            monthHeaderText.add(getMonthHeader(month, followingYear));
             //svg.setMonthHeader(monthHeaderText);
 
             // loop over days for 1 month
@@ -355,9 +359,10 @@ public class GregService {
         return footerGroup;
     }
 
-    public static Text getMonthHeader(Month month){
+    public static Text getMonthHeader(Month month, Boolean followingYear){
+        double xCoordinateOfCurrentMonth = followingYear ?  ( (month.getValue() - 1 + 12) * RECT_WIDTH) + FRAME : ( (month.getValue() - 1) * RECT_WIDTH) + FRAME;
         String monthHeader = month.toString().substring(0,3);
-        Text monthHeaderTextInMethod = new Text(String.format(monthHeader), FRAME, HEIGHT - HEADER_HEIGHT - UPPER_SPACE_HEIGHT - FRAME + 1, "monthText");
+        Text monthHeaderTextInMethod = new Text(String.format(monthHeader), xCoordinateOfCurrentMonth + 30 ,HEADER_HEIGHT+40, "monthText");
         monthHeaderTextInMethod.setTextAnchor("middle");
         monthHeaderTextInMethod.setDominantBaseline("middle");
         return monthHeaderTextInMethod;

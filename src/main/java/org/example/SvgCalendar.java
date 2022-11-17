@@ -31,7 +31,7 @@ public class SvgCalendar {
     @XmlElement(name = "g")
     TextRectGroup footer;
 
-    @XmlElement(name = "g")
+    @XmlElement(name = "text")
     ArrayList<Text> monthHeader;
     @XmlElement(name = "g")
     Text calendarWeek;
@@ -60,7 +60,9 @@ public class SvgCalendar {
     public void setFooter(TextRectGroup footer) {
         this.footer = footer;
     }
-    public void setMonthHeader (ArrayList <Text> monthHeaderText) {this.monthHeader = monthHeader;}
+    public void setMonthHeader (ArrayList <Text> monthHeader) {
+        this.monthHeader = monthHeader;
+    }
     public void setCalendarWeek(Text calendarWeek) {
         this.calendarWeek = calendarWeek;
     }

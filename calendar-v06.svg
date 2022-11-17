@@ -2013,4 +2013,17 @@
         <rect class="headerRect" height="62.00" width="976.00" x="15.00" y="629.00"/>
         <text class="footerText" dominant-baseline="middle" text-anchor="middle" x="503.00" y="675.00">ITEMIS LEIPZIG 2022 ITEMIS LEIPZIG 2022 ITEMIS LEIPZIG 2022 ITEMIS LEIPZIG 2022 ITEMIS LEIPZIG 2022 </text>
     </g>
+    <text class="monthText" dominant-baseline="middle" text-anchor="middle" x="45.00" y="138.00">JAN</text>
+    <text class="monthText" dominant-baseline="middle" text-anchor="middle" x="120.08" y="138.00">FEB</text>
+    <text class="monthText" dominant-baseline="middle" text-anchor="middle" x="195.15" y="138.00">MAR</text>
+    <text class="monthText" dominant-baseline="middle" text-anchor="middle" x="270.23" y="138.00">APR</text>
+    <text class="monthText" dominant-baseline="middle" text-anchor="middle" x="345.31" y="138.00">MAY</text>
+    <text class="monthText" dominant-baseline="middle" text-anchor="middle" x="420.38" y="138.00">JUN</text>
+    <text class="monthText" dominant-baseline="middle" text-anchor="middle" x="495.46" y="138.00">JUL</text>
+    <text class="monthText" dominant-baseline="middle" text-anchor="middle" x="570.54" y="138.00">AUG</text>
+    <text class="monthText" dominant-baseline="middle" text-anchor="middle" x="645.62" y="138.00">SEP</text>
+    <text class="monthText" dominant-baseline="middle" text-anchor="middle" x="720.69" y="138.00">OCT</text>
+    <text class="monthText" dominant-baseline="middle" text-anchor="middle" x="795.77" y="138.00">NOV</text>
+    <text class="monthText" dominant-baseline="middle" text-anchor="middle" x="870.85" y="138.00">DEC</text>
+    <text class="monthText" dominant-baseline="middle" text-anchor="middle" x="945.92" y="138.00">JAN</text>
 </svg>
