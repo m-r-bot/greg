@@ -2,6 +2,7 @@ package org.example;
 
 
 import org.example.types.FederalState;
+import org.jetbrains.annotations.NotNull;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -57,13 +58,15 @@ public class GregService {
             ;
 
     private final FederalState federalState;
-    //needs to be zero for January to start
-    private int currentMonth = 0;
-    private boolean currentDayIsHoliday = false;
-
     public GregService(FederalState federalState) {
         this.federalState = federalState;
     }
+
+    //needs to be zero for January to start
+    private int currentMonth = 0;
+
+    /*
+    private boolean currentDayIsHoliday = false;
 
 
     public SvgCalendar getGroggy(int year) {
@@ -122,30 +125,10 @@ public class GregService {
         svg.setViewbox(String.format("0 0 %d %d", (int) WIDTH, (int) HEIGHT));
         return svg;
 
-    }
+    }*/
 
     private double getY(LocalDate currentDay) {
         return FRAME + HEADER_HEIGHT + UPPER_SPACE_HEIGHT + (currentDay.getDayOfMonth() * RECT_HEIGHT);
-    }
-
-    public boolean isHolidayInCurrentFederalState(LocalDate currentDay) {
-
-        HolidayService holidayService = new HolidayService();
-        Optional<Holiday> holidayForCurrentDate = holidayService.getHolidaysByYearAndState(currentDay.getYear(), this.federalState)
-                .stream()
-                .filter(holiday -> holiday.isHoliday(currentDay))
-                .findFirst();
-        return holidayForCurrentDate.isPresent();
-    }
-
-    public boolean isHolidayInOtherFederalState(LocalDate currentDay) {
-
-        HolidayService holidayService = new HolidayService();
-        Optional<Holiday> holidayForCurrentDate = holidayService.getHolidaysByYearAndOtherFederalStates(currentDay.getYear(), this.federalState)
-                .stream()
-                .filter(holiday -> holiday.isHoliday(currentDay))
-                .findFirst();
-        return holidayForCurrentDate.isPresent();
     }
 
     public boolean isWeekend(LocalDate currentDay) {
@@ -171,31 +154,30 @@ public class GregService {
 
         // initialize
         SvgCalendar svg = new SvgCalendar();
-
         Style style = new Style();
-        // set styles
-        style.setStyles(STYLES_STRING);
-
         HolidayService holidayService = new HolidayService();
 
         ArrayList<TextRectGroup> textRectGroups = new ArrayList<>();
         ArrayList<Text> monthHeaderText = new ArrayList<>();
-        boolean followingYear = false;
+
+        // set styles
+        style.setStyles(STYLES_STRING);
+
+        boolean isFollowingYear = false;
 
         //loop over months
         for (int cmonth = 0; cmonth < 13; cmonth++) {
-
-            if(cmonth == 12) {
-                followingYear = true;
-            }
-            Month month = cmonth == 12 ? Month.of(1) : Month.of(cmonth + 1);
-
             // initialize x coordinate
             double xCoordinateOfCurrentMonth = (cmonth * RECT_WIDTH) + FRAME;
 
-        
-            monthHeaderText.add(getMonthHeader(month, followingYear));
-            //svg.setMonthHeader(monthHeaderText);
+            //if clause solves enum issue to draw 13th month issue
+            if(cmonth == 12) {
+                isFollowingYear = true;
+            }
+            Month month = cmonth == 12 ? Month.of(1) : Month.of(cmonth + 1);
+
+            //add monthheader text elements to array list
+            monthHeaderText.add(getMonthHeader(month, isFollowingYear));
 
             // loop over days for 1 month
             for (int day = 0; day < month.length(isLeapYear(year)); day++) {
@@ -203,20 +185,14 @@ public class GregService {
                 //initialize y coordinate
                 double y = getYForOldLogic(day);
 
+                //define time variables
                 LocalDate date = LocalDate.of(year, month, day + 1);
                 DayOfWeek curDayOfWeek = date.getDayOfWeek();
-
                 boolean isWeekend = curDayOfWeek == DayOfWeek.SUNDAY || curDayOfWeek == DayOfWeek.SATURDAY;
 
-                Optional<Holiday> holidayForCurrentDate = holidayService.getHolidaysByYearAndState(year, FederalState.valueOf(state))
-                        .stream()
-                        .filter(holiday -> holiday.isHoliday(date))
-                        .findFirst();
-
-                Optional<Holiday> holidayInOtherStateForCurrentDate = holidayService.getHolidaysByYearAndOtherFederalStates(year, FederalState.valueOf(state))
-                        .stream()
-                        .filter(holiday -> holiday.isHoliday(date))
-                        .findFirst();
+                //checks for a holiday on the current date
+                Optional<Holiday> holidayForCurrentDate = getHolidayForCurrentDate(year, state, holidayService, date);
+                Optional<Holiday> holidayInOtherStateForCurrentDate = getHolidayInOtherStateForCurrentDate(year, state, holidayService, date);
 
                 boolean isHolidayInState = holidayForCurrentDate.isPresent();
                 boolean isHolidayInOtherSates = holidayInOtherStateForCurrentDate.isPresent();
@@ -224,23 +200,14 @@ public class GregService {
                 //check for colour of day rectangle
                 String stylesClass = getStylesClass(isHolidayInState, isHolidayInOtherSates, isWeekend);
 
-                // day text
-                String dayName = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.GERMANY)//
-                        .substring(0, 2)//
-                        .toUpperCase();
-                String dateString = date.format(DateTimeFormatter.ofPattern("dd"));
+                // define labels of day
+                String dayName = getDayName(date);
+                String dateString = getDateString(date);
 
-                //create svg rectangle
-                Rect rect = new Rect(xCoordinateOfCurrentMonth, y, RECT_WIDTH, RECT_HEIGHT, stylesClass);
-
-                //create svg text
-                Text dateText = new Text(dateString, xCoordinateOfCurrentMonth, y, "dateText");
-                dateText.setTextAnchor("start");
-                dateText.setDominantBaseline("hanging");
-
-                Text dayText = new Text(dayName, xCoordinateOfCurrentMonth + 17, y, "dayText");
-                dayText.setTextAnchor("start");
-                dayText.setDominantBaseline("hanging");
+                //create svg elements
+                Rect rect = getRect(xCoordinateOfCurrentMonth, y, stylesClass);
+                Text dateText = getDateText(xCoordinateOfCurrentMonth, y, dateString);
+                Text dayText = getDayText(xCoordinateOfCurrentMonth, y, dayName);
 
 
                 //bind svg rectangle and text in <g> textrectgroup together
@@ -250,20 +217,12 @@ public class GregService {
                 group.setSecondText(dateText);
 
                 if (isHolidayInState) {
-
-                    Text holidayText = new Text(holidayForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "holidayText");
-                    holidayText.setTextAnchor("end");
-                    holidayText.setDominantBaseline("top-bottom");
-
+                    Text holidayText = getHolidayTextForHolidayInState(xCoordinateOfCurrentMonth, y, holidayForCurrentDate);
                     group.setThirdText(holidayText);
                 }
 
                 if (isHolidayInOtherSates) {
-
-                    Text holidayText = new Text(holidayInOtherStateForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "holidayText");
-                    holidayText.setTextAnchor("end");
-                    holidayText.setDominantBaseline("top-bottom");
-
+                    Text holidayText = getHolidayTextForHolidayInOtherState(xCoordinateOfCurrentMonth, y, holidayInOtherStateForCurrentDate);
                     group.setThirdText(holidayText);
                 }
 
@@ -288,9 +247,121 @@ public class GregService {
         return svg;
     }
 
+    public static void writeCalendarAsSvg(SvgCalendar calendar, String name) {
+        try {
+            // Create JAXB Context
+            JAXBContext jaxbContext = JAXBContext.newInstance(calendar.getClass());
+
+            // Create Marshaller
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+            // Required formatting??
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+            // Store XML to File
+            File file = new File(name + ".svg");
+
+            // Writes XML file to file-system
+            jaxbMarshaller.marshal(calendar, file);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean isHolidayInCurrentFederalState(LocalDate currentDay) {
+
+        HolidayService holidayService = new HolidayService();
+        Optional<Holiday> holidayForCurrentDate = holidayService.getHolidaysByYearAndState(currentDay.getYear(), this.federalState)
+                .stream()
+                .filter(holiday -> holiday.isHoliday(currentDay))
+                .findFirst();
+        return holidayForCurrentDate.isPresent();
+    }
+
+    public boolean isHolidayInOtherFederalState(LocalDate currentDay) {
+
+        HolidayService holidayService = new HolidayService();
+        Optional<Holiday> holidayForCurrentDate = holidayService.getHolidaysByYearAndOtherFederalStates(currentDay.getYear(), this.federalState)
+                .stream()
+                .filter(holiday -> holiday.isHoliday(currentDay))
+                .findFirst();
+        return holidayForCurrentDate.isPresent();
+    }
+
+    @NotNull
+    private static Text getHolidayTextForHolidayInOtherState(double xCoordinateOfCurrentMonth, double y, Optional<Holiday> holidayInOtherStateForCurrentDate) {
+        Text holidayText = new Text(holidayInOtherStateForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "holidayText");
+        holidayText.setTextAnchor("end");
+        holidayText.setDominantBaseline("top-bottom");
+        return holidayText;
+    }
+
+    @NotNull
+    private static Text getHolidayTextForHolidayInState(double xCoordinateOfCurrentMonth, double y, Optional<Holiday> holidayForCurrentDate) {
+        Text holidayText = new Text(holidayForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "holidayText");
+        holidayText.setTextAnchor("end");
+        holidayText.setDominantBaseline("top-bottom");
+        return holidayText;
+    }
+
+    @NotNull
+    private static Optional<Holiday> getHolidayInOtherStateForCurrentDate(int year, String state, HolidayService holidayService, LocalDate date) {
+        Optional<Holiday> holidayInOtherStateForCurrentDate = holidayService.getHolidaysByYearAndOtherFederalStates(year, FederalState.valueOf(state))
+                .stream()
+                .filter(holiday -> holiday.isHoliday(date))
+                .findFirst();
+        return holidayInOtherStateForCurrentDate;
+    }
+
+    @NotNull
+    private static Optional<Holiday> getHolidayForCurrentDate(int year, String state, HolidayService holidayService, LocalDate date) {
+        Optional<Holiday> holidayForCurrentDate = holidayService.getHolidaysByYearAndState(year, FederalState.valueOf(state))
+                .stream()
+                .filter(holiday -> holiday.isHoliday(date))
+                .findFirst();
+        return holidayForCurrentDate;
+    }
+
+    @NotNull
+    private static String getDateString(LocalDate date) {
+        String dateString = date.format(DateTimeFormatter.ofPattern("dd"));
+        return dateString;
+    }
+
+    @NotNull
+    private static String getDayName(LocalDate date) {
+        String dayName = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.GERMANY)//
+                .substring(0, 2)//
+                .toUpperCase();
+        return dayName;
+    }
+
+    @NotNull
+    private static Rect getRect(double xCoordinateOfCurrentMonth, double y, String stylesClass) {
+        //create svg rectangle
+        Rect rect = new Rect(xCoordinateOfCurrentMonth, y, RECT_WIDTH, RECT_HEIGHT, stylesClass);
+        return rect;
+    }
+
+    @NotNull
+    private static Text getDayText(double xCoordinateOfCurrentMonth, double y, String dayName) {
+        Text dayText = new Text(dayName, xCoordinateOfCurrentMonth + 17, y, "dayText");
+        dayText.setTextAnchor("start");
+        dayText.setDominantBaseline("hanging");
+        return dayText;
+    }
+
+    @NotNull
+    private static Text getDateText(double xCoordinateOfCurrentMonth, double y, String dateString) {
+        //create svg text
+        Text dateText = new Text(dateString, xCoordinateOfCurrentMonth, y, "dateText");
+        dateText.setTextAnchor("start");
+        dateText.setDominantBaseline("hanging");
+        return dateText;
+    }
+
     private static String getStylesClass(boolean isHolidayInState, boolean isHolidayInOtherSates, boolean isWeekend) {
         String stylesClass;
-        // = isHolidayInState ? "fRect" : isHolidayInOtherSates ? "hRect" : "nRect";
 
         if (isWeekend) {
             stylesClass  = "hRect";
@@ -311,27 +382,6 @@ public class GregService {
 
     private static boolean isLeapYear(int year) {
         return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
-    }
-
-    public static void writeCalendarAsSvg(SvgCalendar calendar, String name) {
-        try {
-            // Create JAXB Context
-            JAXBContext jaxbContext = JAXBContext.newInstance(calendar.getClass());
-
-            // Create Marshaller
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-
-            // Required formatting??
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
-            // Store XML to File
-            File file = new File(name + ".svg");
-
-            // Writes XML file to file-system
-            jaxbMarshaller.marshal(calendar, file);
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
     }
 
     public static TextRectGroup getHeader(int year) {
@@ -359,9 +409,14 @@ public class GregService {
         return footerGroup;
     }
 
-    public static Text getMonthHeader(Month month, Boolean followingYear){
-        double xCoordinateOfCurrentMonth = followingYear ?  ( (month.getValue() - 1 + 12) * RECT_WIDTH) + FRAME : ( (month.getValue() - 1) * RECT_WIDTH) + FRAME;
+    public static Text getMonthHeader(Month month, Boolean isFollowingYear){
+        //checks if it is the second January and assigns xCoordinate accordingly
+        double xCoordinateOfCurrentMonth = isFollowingYear ?  ( (month.getValue() - 1 + 12) * RECT_WIDTH) + FRAME : ( (month.getValue() - 1) * RECT_WIDTH) + FRAME;
+
+        //define displayed string
         String monthHeader = month.toString().substring(0,3);
+
+        //create text element for svg
         Text monthHeaderTextInMethod = new Text(String.format(monthHeader), xCoordinateOfCurrentMonth + 30 ,HEADER_HEIGHT+40, "monthText");
         monthHeaderTextInMethod.setTextAnchor("middle");
         monthHeaderTextInMethod.setDominantBaseline("middle");
