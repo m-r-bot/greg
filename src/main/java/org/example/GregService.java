@@ -33,6 +33,8 @@ public class GregService {
     private static final String HOLIDAY_RECT_STYLE = ".fRect{fill:#b6e6ff; stroke-width:0.3; stroke:black}";
     private static final String HOLIDAY_IN_OTHER_STATE_RECT_STYLE = ".oRect{fill:#DAE9F2; stroke-width:0.3; stroke:black}";
     private static final String HEADER_RECT_STYLE = ".headerRect{fill:#00457c; stroke-width:0.3; stroke:#34568B}";
+    private static final String SECOND_YEAR_RECT_STYLE = ".sRect{fill:#b6e6ff; stroke-width:0.3; stroke:black}";
+
     private static final String NORMAL_TEXT_STYLE = ".nText{font-size:7pt; fill:black}";
     private static final String DATE_TEXT_STYLE = ".dateText{font-size:7pt; fill:#00457c; font-family:Verdana; font-weight:bold}";
     private static final String DAY_TEXT_STYLE = ".dayText{font-size:7pt; fill:#00457c; font-family:Verdana; font-weight:normal}";
@@ -41,6 +43,11 @@ public class GregService {
     private static final String FOOTER_TEXT_STYLE = ".footerText{font-size:12pt; fill:white; font-family:Verdana}";
     private static final String HOLIDAY_TEXT_STYLE = ".holidayText{font-size:3pt; fill:#00457c; font-family:Verdana; font-weight:normal}";
     private static final String CALENDAR_WEEK_TEXT_STYLE = ".calendarWeekText{font-size:10pt; fill:#f0f1f3; font-family:Verdana; font-weight:bold}";
+    private static final String SECOND_YEAR_DATE_TEXT_STYLE = ".secondDateText{font-size:7pt; fill:#b6e6ff; font-family:Verdana; font-weight:bold}";
+    private static final String SECOND_YEAR_DAY_TEXT_STYLE = ".secondDayText{font-size:7pt; fill:#b6e6ff; font-family:Verdana; font-weight:normal}";
+    private static final String SECOND_YEAR_HOLIDAY_TEXT_STYLE = ".secondHolidayText{font-size:3pt; fill:#b6e6ff; font-family:Verdana; font-weight:normal}";
+
+
 
     private static final String STYLES_STRING = NORMAL_RECT_STYLE + //
             WEEKEND_RECT_STYLE + //
@@ -54,7 +61,11 @@ public class GregService {
             FOOTER_TEXT_STYLE + //
             HOLIDAY_TEXT_STYLE + //
             HOLIDAY_IN_OTHER_STATE_RECT_STYLE + //
-            CALENDAR_WEEK_TEXT_STYLE
+            CALENDAR_WEEK_TEXT_STYLE + //
+            SECOND_YEAR_HOLIDAY_TEXT_STYLE + //
+            SECOND_YEAR_DATE_TEXT_STYLE + //
+            SECOND_YEAR_DAY_TEXT_STYLE + //
+            SECOND_YEAR_RECT_STYLE
             ;
 
     private final FederalState federalState;
@@ -173,10 +184,11 @@ public class GregService {
             //if clause solves enum issue to draw 13th month issue
             if(cmonth == 12) {
                 isFollowingYear = true;
+                year = year + 1;
             }
-            Month month = cmonth == 12 ? Month.of(1) : Month.of(cmonth + 1);
+            Month month = getMonth(cmonth);
 
-            //add monthheader text elements to array list
+            //add month header text elements to array list
             monthHeaderText.add(getMonthHeader(month, isFollowingYear));
 
             // loop over days for 1 month
@@ -188,14 +200,15 @@ public class GregService {
                 //define time variables
                 LocalDate date = LocalDate.of(year, month, day + 1);
                 DayOfWeek curDayOfWeek = date.getDayOfWeek();
-                boolean isWeekend = curDayOfWeek == DayOfWeek.SUNDAY || curDayOfWeek == DayOfWeek.SATURDAY;
+                boolean isWeekend = isWeekend(curDayOfWeek);
 
                 //checks for a holiday on the current date
                 Optional<Holiday> holidayForCurrentDate = getHolidayForCurrentDate(year, state, holidayService, date);
                 Optional<Holiday> holidayInOtherStateForCurrentDate = getHolidayInOtherStateForCurrentDate(year, state, holidayService, date);
 
-                boolean isHolidayInState = holidayForCurrentDate.isPresent();
-                boolean isHolidayInOtherSates = holidayInOtherStateForCurrentDate.isPresent();
+                boolean isHolidayInState = isHolidayInState(holidayForCurrentDate);
+                boolean isHolidayInOtherSates = isHolidayInOtherSates(holidayInOtherStateForCurrentDate);
+
 
                 //check for colour of day rectangle
                 String stylesClass = getStylesClass(isHolidayInState, isHolidayInOtherSates, isWeekend);
@@ -204,11 +217,15 @@ public class GregService {
                 String dayName = getDayName(date);
                 String dateString = getDateString(date);
 
+                if (cmonth == 12){
+                    stylesClass = "sRect";
+
+                }
+
                 //create svg elements
                 Rect rect = getRect(xCoordinateOfCurrentMonth, y, stylesClass);
                 Text dateText = getDateText(xCoordinateOfCurrentMonth, y, dateString);
                 Text dayText = getDayText(xCoordinateOfCurrentMonth, y, dayName);
-
 
                 //bind svg rectangle and text in <g> textrectgroup together
                 TextRectGroup group = new TextRectGroup();
@@ -247,6 +264,26 @@ public class GregService {
         return svg;
     }
 
+    private static boolean isHolidayInOtherSates(Optional<Holiday> holidayInOtherStateForCurrentDate) {
+        boolean isHolidayInOtherSates = holidayInOtherStateForCurrentDate.isPresent();
+        return isHolidayInOtherSates;
+    }
+
+    private static boolean isHolidayInState(Optional<Holiday> holidayForCurrentDate) {
+        boolean isHolidayInState = holidayForCurrentDate.isPresent();
+        return isHolidayInState;
+    }
+
+    private static boolean isWeekend(DayOfWeek curDayOfWeek) {
+        boolean isWeekend = curDayOfWeek == DayOfWeek.SUNDAY || curDayOfWeek == DayOfWeek.SATURDAY;
+        return isWeekend;
+    }
+
+    private static Month getMonth(int cmonth) {
+        Month month = cmonth == 12 ? Month.of(1) : Month.of(cmonth + 1);
+        return month;
+    }
+
     public static void writeCalendarAsSvg(SvgCalendar calendar, String name) {
         try {
             // Create JAXB Context
@@ -266,6 +303,10 @@ public class GregService {
         } catch (JAXBException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isSecondYear (int cmonth){
+        return cmonth == 12;
     }
 
     public boolean isHolidayInCurrentFederalState(LocalDate currentDay) {
