@@ -43,9 +43,9 @@ public class GregService {
     private static final String FOOTER_TEXT_STYLE = ".footerText{font-size:12pt; fill:white; font-family:Verdana}";
     private static final String HOLIDAY_TEXT_STYLE = ".holidayText{font-size:3pt; fill:#00457c; font-family:Verdana; font-weight:normal}";
     private static final String CALENDAR_WEEK_TEXT_STYLE = ".calendarWeekText{font-size:10pt; fill:#f0f1f3; font-family:Verdana; font-weight:bold}";
-    private static final String SECOND_YEAR_DATE_TEXT_STYLE = ".secondDateText{font-size:7pt; fill:#b6e6ff; font-family:Verdana; font-weight:bold}";
-    private static final String SECOND_YEAR_DAY_TEXT_STYLE = ".secondDayText{font-size:7pt; fill:#b6e6ff; font-family:Verdana; font-weight:normal}";
-    private static final String SECOND_YEAR_HOLIDAY_TEXT_STYLE = ".secondHolidayText{font-size:3pt; fill:#b6e6ff; font-family:Verdana; font-weight:normal}";
+    private static final String SECOND_YEAR_DATE_TEXT_STYLE = ".secondDateText{font-size:7pt; fill:#77c3ff; font-family:Verdana; font-weight:bold}";
+    private static final String SECOND_YEAR_DAY_TEXT_STYLE = ".secondDayText{font-size:7pt; fill:#77c3ff; font-family:Verdana; font-weight:normal}";
+    private static final String SECOND_YEAR_HOLIDAY_TEXT_STYLE = ".secondHolidayText{font-size:3pt; fill:#77c3ff; font-family:Verdana; font-weight:normal}";
 
 
 
@@ -211,21 +211,16 @@ public class GregService {
 
 
                 //check for colour of day rectangle
-                String stylesClass = getStylesClass(isHolidayInState, isHolidayInOtherSates, isWeekend);
+                String stylesClass = getStylesClass(isHolidayInState, isHolidayInOtherSates, isWeekend, cmonth);
 
                 // define labels of day
                 String dayName = getDayName(date);
                 String dateString = getDateString(date);
 
-                if (cmonth == 12){
-                    stylesClass = "sRect";
-
-                }
-
                 //create svg elements
                 Rect rect = getRect(xCoordinateOfCurrentMonth, y, stylesClass);
-                Text dateText = getDateText(xCoordinateOfCurrentMonth, y, dateString);
-                Text dayText = getDayText(xCoordinateOfCurrentMonth, y, dayName);
+                Text dateText = getDateText(xCoordinateOfCurrentMonth, y, dateString, cmonth);
+                Text dayText = getDayText(xCoordinateOfCurrentMonth, y, dayName, cmonth);
 
                 //bind svg rectangle and text in <g> textrectgroup together
                 TextRectGroup group = new TextRectGroup();
@@ -234,18 +229,17 @@ public class GregService {
                 group.setSecondText(dateText);
 
                 if (isHolidayInState) {
-                    Text holidayText = getHolidayTextForHolidayInState(xCoordinateOfCurrentMonth, y, holidayForCurrentDate);
+                    Text holidayText = getHolidayTextForHolidayInState(xCoordinateOfCurrentMonth, y, holidayForCurrentDate, cmonth);
                     group.setThirdText(holidayText);
                 }
 
                 if (isHolidayInOtherSates) {
-                    Text holidayText = getHolidayTextForHolidayInOtherState(xCoordinateOfCurrentMonth, y, holidayInOtherStateForCurrentDate);
+                    Text holidayText = getHolidayTextForHolidayInOtherState(xCoordinateOfCurrentMonth, y, holidayInOtherStateForCurrentDate, cmonth);
                     group.setThirdText(holidayText);
                 }
 
                 //add to Array List
                 textRectGroups.add(group);
-
 
                 Text calendarWeekText = new Text();
                 calendarWeekText = getCalendarWeek(date);
@@ -330,16 +324,30 @@ public class GregService {
     }
 
     @NotNull
-    private static Text getHolidayTextForHolidayInOtherState(double xCoordinateOfCurrentMonth, double y, Optional<Holiday> holidayInOtherStateForCurrentDate) {
-        Text holidayText = new Text(holidayInOtherStateForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "holidayText");
+    private static Text getHolidayTextForHolidayInOtherState(double xCoordinateOfCurrentMonth, double y, Optional<Holiday> holidayInOtherStateForCurrentDate, int cmonth) {
+        Text holidayText = new Text();
+
+        if (cmonth == 12 ){
+            holidayText = new Text(holidayInOtherStateForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "secondHolidayText");
+        }
+        else {
+            holidayText = new Text(holidayInOtherStateForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "holidayText");
+        }
         holidayText.setTextAnchor("end");
         holidayText.setDominantBaseline("top-bottom");
         return holidayText;
     }
-
+//TODO works but check if theres is a more elegant solution than checking for cmonth every single time
     @NotNull
-    private static Text getHolidayTextForHolidayInState(double xCoordinateOfCurrentMonth, double y, Optional<Holiday> holidayForCurrentDate) {
-        Text holidayText = new Text(holidayForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "holidayText");
+    private static Text getHolidayTextForHolidayInState(double xCoordinateOfCurrentMonth, double y, Optional<Holiday> holidayForCurrentDate, int cmonth) {
+        Text holidayText = new Text();
+
+        if (cmonth == 12 ){
+             holidayText = new Text(holidayForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "secondHolidayText");
+        }
+        else {
+             holidayText = new Text(holidayForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "holidayText");
+        }
         holidayText.setTextAnchor("end");
         holidayText.setDominantBaseline("top-bottom");
         return holidayText;
@@ -365,8 +373,7 @@ public class GregService {
 
     @NotNull
     private static String getDateString(LocalDate date) {
-        String dateString = date.format(DateTimeFormatter.ofPattern("dd"));
-        return dateString;
+        return date.format(DateTimeFormatter.ofPattern("dd"));
     }
 
     @NotNull
@@ -379,41 +386,55 @@ public class GregService {
 
     @NotNull
     private static Rect getRect(double xCoordinateOfCurrentMonth, double y, String stylesClass) {
-        //create svg rectangle
-        Rect rect = new Rect(xCoordinateOfCurrentMonth, y, RECT_WIDTH, RECT_HEIGHT, stylesClass);
-        return rect;
+        return new Rect(xCoordinateOfCurrentMonth, y, RECT_WIDTH, RECT_HEIGHT, stylesClass);
     }
 
     @NotNull
-    private static Text getDayText(double xCoordinateOfCurrentMonth, double y, String dayName) {
-        Text dayText = new Text(dayName, xCoordinateOfCurrentMonth + 17, y, "dayText");
+    private static Text getDayText(double xCoordinateOfCurrentMonth, double y, String dayName, int cmonth) {
+        Text dayText = new Text();
+
+        if (cmonth == 12) {
+             dayText = new Text(dayName, xCoordinateOfCurrentMonth + 17, y, "secondDayText");
+        }
+        else{
+             dayText = new Text(dayName, xCoordinateOfCurrentMonth + 17, y, "dayText");
+        }
         dayText.setTextAnchor("start");
         dayText.setDominantBaseline("hanging");
         return dayText;
     }
 
     @NotNull
-    private static Text getDateText(double xCoordinateOfCurrentMonth, double y, String dateString) {
+    private static Text getDateText(double xCoordinateOfCurrentMonth, double y, String dateString, int cmonth) {
         //create svg text
-        Text dateText = new Text(dateString, xCoordinateOfCurrentMonth, y, "dateText");
+        Text dateText = new Text();
+
+        if (cmonth == 12) {
+            dateText = new Text(dateString, xCoordinateOfCurrentMonth, y, "secondDateText");
+        }
+        else{
+            dateText = new Text(dateString, xCoordinateOfCurrentMonth, y, "dateText");
+        }
         dateText.setTextAnchor("start");
         dateText.setDominantBaseline("hanging");
         return dateText;
     }
 
-    private static String getStylesClass(boolean isHolidayInState, boolean isHolidayInOtherSates, boolean isWeekend) {
+    private static String getStylesClass(boolean isHolidayInState, boolean isHolidayInOtherSates, boolean isWeekend, int cmonth) {
         String stylesClass;
-
-        if (isWeekend) {
+//TODO change to defensive programming so break up the nested if function
+        if (cmonth == 12 && (isWeekend || isHolidayInState || isHolidayInOtherSates)) {
+            stylesClass = "sRect";
+        } else if (isWeekend) {
             stylesClass  = "hRect";
         } else if (isHolidayInState) {
             stylesClass = "fRect";
         } else if (isHolidayInOtherSates) {
             stylesClass = "oRect";
-        } else {
+        }
+        else {
             stylesClass = "nRect";
         }
-
         return stylesClass;
     }
 
@@ -470,10 +491,6 @@ public class GregService {
         Text calendarWeekText = new Text(String.valueOf(valueOfCalendarWeek), FRAME, HEADER_HEIGHT, "calendarWeekText" );
         return calendarWeekText;
     }
-
-
-
-
 
 
 }
