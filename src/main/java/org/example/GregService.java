@@ -22,8 +22,8 @@ public class GregService {
     private static final double FRAME = 15;
     private static final double HEADER_HEIGHT = 98;
     private static final double FOOTER_HEIGHT = 62;
-    private static final double UPPER_SPACE_HEIGHT = 35;
-    private static final double LOWER_SPACE_HEIGHT = 30;
+    private static final double UPPER_SPACE_HEIGHT = 45;
+    private static final double LOWER_SPACE_HEIGHT = 20;
     private static final double RECT_HEIGHT = (HEIGHT - HEADER_HEIGHT - FOOTER_HEIGHT - UPPER_SPACE_HEIGHT - LOWER_SPACE_HEIGHT - 2*FRAME) / 31;
     private static final double RECT_WIDTH = (WIDTH-2*FRAME) / 13;
 
@@ -38,7 +38,7 @@ public class GregService {
     private static final String NORMAL_TEXT_STYLE = ".nText{font-size:7pt; fill:black}";
     private static final String DATE_TEXT_STYLE = ".dateText{font-size:7pt; fill:#00457c; font-family:Verdana; font-weight:bold}";
     private static final String DAY_TEXT_STYLE = ".dayText{font-size:7pt; fill:#00457c; font-family:Verdana; font-weight:normal}";
-    private static final String MONTH_HEADER_TEXT_STYLE = ".monthText{font-size:9pt; fill:#00457c; font-family:sans-serif; font-weight:bold}";
+    private static final String MONTH_HEADER_TEXT_STYLE = ".monthText{font-size:11pt; fill:#00457c; font-family:sans-serif; font-weight:bold}";
     private static final String HEADER_TEXT_STYLE = ".headerText{font-size:75pt; fill:white; font-family:Verdana}";
     private static final String FOOTER_TEXT_STYLE = ".footerText{font-size:12pt; fill:white; font-family:Verdana}";
     private static final String HOLIDAY_TEXT_STYLE = ".holidayText{font-size:3pt; fill:#00457c; font-family:Verdana; font-weight:normal}";
@@ -479,7 +479,7 @@ public class GregService {
         String monthHeader = month.toString().substring(0,3);
 
         //create text element for svg
-        Text monthHeaderTextInMethod = new Text(String.format(monthHeader), xCoordinateOfCurrentMonth + 30 ,HEADER_HEIGHT+40, "monthText");
+        Text monthHeaderTextInMethod = new Text(String.format(monthHeader), xCoordinateOfCurrentMonth + RECT_WIDTH/2 ,HEADER_HEIGHT + UPPER_SPACE_HEIGHT+5, "monthText");
         monthHeaderTextInMethod.setTextAnchor("middle");
         monthHeaderTextInMethod.setDominantBaseline("middle");
         return monthHeaderTextInMethod;
