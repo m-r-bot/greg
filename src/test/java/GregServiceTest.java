@@ -19,9 +19,18 @@ public class GregServiceTest {
 
     @Test
     public void testIsHolidayInOtherState(){
-          var currentDay =LocalDate.of(2022, 8, 1);
+          var currentDay =LocalDate.of(2022, 3, 8);
           boolean isHolidayInOtherState = gregService.isHolidayInOtherFederalState(currentDay);
 
           Assert.assertTrue(isHolidayInOtherState);
+    }
+    // always returns true
+    @Test
+    public void testCalculateSecondNewYear(){
+
+            var SecondNewYear = LocalDate.of(2023, 1, 1);
+            var FirstNewYear = LocalDate.of(2022, 1, 1);
+
+            Assert.assertFalse(SecondNewYear.getDayOfWeek().getValue() == FirstNewYear.getDayOfWeek().getValue());
     }
 }
