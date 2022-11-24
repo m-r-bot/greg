@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -32,9 +33,12 @@ public class SvgCalendar {
     TextRectGroup footer;
 
     @XmlElement(name = "text")
-    ArrayList<Text> monthHeader;
-    @XmlElement(name = "g")
-    Text calendarWeek;
+    List<Text> monthHeader;
+    @XmlElement(name = "text")
+    List <Text> calendarWeek;
+
+    @XmlElement (name= "svg")
+    ItemisIcon itemisIcon;
 
 
     public void setVersion(String version) {
@@ -60,12 +64,13 @@ public class SvgCalendar {
     public void setFooter(TextRectGroup footer) {
         this.footer = footer;
     }
-    public void setMonthHeader (ArrayList <Text> monthHeader) {
+    public void setMonthHeader (List <Text> monthHeader) {
         this.monthHeader = monthHeader;
     }
-    public void setCalendarWeek(Text calendarWeek) {
+    public void setCalendarWeek(List <Text> calendarWeek) {
         this.calendarWeek = calendarWeek;
     }
+    public void setItemisIcon (ItemisIcon itemisIcon) {this.itemisIcon = itemisIcon;}
     public SvgCalendar() {
         setXmlns("http://www.w3.org/2000/svg");
         setVersion("1.1");
