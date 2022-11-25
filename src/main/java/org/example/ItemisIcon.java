@@ -3,11 +3,12 @@ package org.example;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(name = "svg")
-@XmlAccessorType(XmlAccessType.NONE)
+//@XmlAccessorType(XmlAccessType.NONE)
+@XmlType(propOrder = { "g" })
 public class ItemisIcon {
 
-    public ItemisIcon(String content, double x, double y, double height, double width) {
-        this.content = content;
+    public ItemisIcon(String g, double x, double y, double height, double width) {
+        this.g = g;
         this.x = x;
         this.y = y;
         this.height = height;
@@ -15,7 +16,7 @@ public class ItemisIcon {
     }
 
     public ItemisIcon (){}
-    private String content;
+    private String g;
     private double x;
     private double y;
     private double height;
@@ -40,10 +41,13 @@ public class ItemisIcon {
         return String.format("%.2f",this.width);
     }
 
-    @XmlElement(name = "g")
-    private String getContent() {
-        return this.content;
+//    @XmlElement(name = "g")
+
+    private String getG() {
+        return this.g;
     }
+    @XmlAnyElement(BodyDomHandler.class)
+    public void setG (String g) {this.g = g;}
 
     public void setX(double x) {
         this.x = x;
