@@ -15,7 +15,6 @@ public class ItemisIcon {
     }
 
     public ItemisIcon (){}
-    @XmlValue
     private String content;
     private double x;
     private double y;
@@ -41,10 +40,10 @@ public class ItemisIcon {
         return String.format("%.2f",this.width);
     }
 
-//    @XmlAttribute(name = "g")
-//    public String getContent() {
-//        return this.content;
-//    }
+    @XmlElement(name = "g")
+    private String getContent() {
+        return this.content;
+    }
 
     public void setX(double x) {
         this.x = x;
