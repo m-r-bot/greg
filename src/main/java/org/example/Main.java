@@ -1,14 +1,16 @@
 package org.example;
 
+import com.sun.xml.bind.AnyTypeAdapter;
 import org.example.types.FederalState;
 
+import java.io.IOException;
 import java.util.Locale;
 
 public class Main {
 
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         //add locale default to set default delimiter to dot instead of German comma
         Locale.setDefault(Locale.US);

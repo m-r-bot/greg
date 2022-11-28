@@ -1,13 +1,14 @@
 package org.example;
 
 import javax.xml.bind.annotation.*;
+import java.io.StringReader;
 
 @XmlRootElement(name = "svg")
 //@XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "g" })
 public class ItemisIcon {
 
-    public ItemisIcon(String g, double x, double y, double height, double width) {
+    public ItemisIcon(StringReader g, double x, double y, double height, double width) {
         this.g = g;
         this.x = x;
         this.y = y;
@@ -16,7 +17,7 @@ public class ItemisIcon {
     }
 
     public ItemisIcon (){}
-    private String g;
+    private StringReader g;
     private double x;
     private double y;
     private double height;
@@ -41,13 +42,12 @@ public class ItemisIcon {
         return String.format("%.2f",this.width);
     }
 
-//    @XmlElement(name = "g")
-
-    private String getG() {
+    @XmlElement(name = "g")
+    private StringReader getG() {
         return this.g;
     }
-    @XmlAnyElement(BodyDomHandler.class)
-    public void setG (String g) {this.g = g;}
+
+    public void setG (StringReader g) {this.g = g;}
 
     public void setX(double x) {
         this.x = x;
@@ -65,7 +65,7 @@ public class ItemisIcon {
         this.width = width;
     }
 }
-    // x, y, width, height, namespce siehe TExt elemnt
+    // x, y, width, height, namespce siehe Text elemnt
     // den ganzen Kladderadatsch an eigentliches svg ranhängen
 
 

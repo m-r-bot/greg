@@ -3,11 +3,17 @@ package org.example;
 
 import org.example.types.FederalState;
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Node;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
@@ -161,7 +167,7 @@ public class GregService {
     }
 
 
-    public static SvgCalendar getGreg(int year, FederalState state) {
+    public static SvgCalendar getGreg(int year, FederalState state) throws IOException {
 
         // initialize
         SvgCalendar svg = new SvgCalendar();
@@ -293,10 +299,19 @@ public class GregService {
             // Store XML to File
             File file = new File(name + ".svg");
 
+//            Transformer nullTransformer = TransformerFactory.newInstance().newTransformer();
+//            nullTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
+//            nullTransformer.setOutputProperty(OutputKeys.CDATA_SECTION_ELEMENTS, "myElement {myNamespace}myOtherElement");
+//            nullTransformer.transform(new DOMSource((Node) calendar), new StreamResult(writer/stream));
+
             // Writes XML file to file-system
             jaxbMarshaller.marshal(calendar, file);
+
+
         } catch (JAXBException e) {
             e.printStackTrace();
+//        } catch (TransformerConfigurationException e) {
+//            throw new RuntimeException(e);
         }
     }
 
@@ -495,7 +510,7 @@ public class GregService {
         return calendarWeekText;
     }
 
-    private static ItemisIcon getItemisIcon (){
+    private static ItemisIcon getItemisIcon () throws IOException {
         String icon = """
   <g clip-path="url(#clip1)" clip-rule="nonzero" id="g12">
     <path style=" stroke:none;fill-rule:nonzero;fill:white;fill-opacity:1;" d="M 40.929688 4.257812 C 20.710938 4.257812 4.261719 20.710938 4.261719 40.929688 C 4.261719 61.148438 20.710938 77.597656 40.929688 77.597656 C 61.152344 77.597656 77.601562 61.148438 77.601562 40.929688 C 77.601562 20.710938 61.152344 4.257812 40.929688 4.257812 Z M 40.929688 81.859375 C 18.359375 81.859375 0 63.5 0 40.929688 C 0 18.359375 18.359375 0 40.929688 0 C 63.5 0 81.859375 18.359375 81.859375 40.929688 C 81.859375 63.5 63.5 81.859375 40.929688 81.859375 " id="path10" />
@@ -515,7 +530,15 @@ public class GregService {
   <path style=" stroke:none;fill-rule:nonzero;fill:white;fill-opacity:1;" d="M 108.53125 11.679688 C 105.25 11.679688 102.574219 14.316406 102.574219 17.554688 C 102.574219 20.839844 105.210938 23.511719 108.449219 23.511719 C 111.789062 23.511719 114.40625 20.894531 114.40625 17.554688 C 114.40625 14.316406 111.773438 11.679688 108.53125 11.679688 " id="path36" />
   <path style=" stroke:none;fill-rule:nonzero;fill:white;fill-opacity:1;" d="M 154.257812 44.121094 C 154.421875 37.03125 157.597656 35.875 160.214844 35.875 C 162.832031 35.875 166.113281 36.921875 166.257812 44.121094 Z M 174.976562 50.878906 L 174.976562 47.140625 C 174.976562 34.859375 170.285156 29.125 160.214844 29.125 C 150.886719 29.125 145.539062 35.699219 145.539062 47.140625 L 145.539062 51.097656 C 145.539062 62.636719 151.292969 69.253906 161.332031 69.253906 C 167.976562 69.253906 172.128906 65.519531 174.054688 61.394531 C 171.824219 60.035156 169.472656 58.558594 167.960938 57.625 C 166.980469 59.316406 165.066406 62.035156 161.246094 62.035156 C 155.460938 62.035156 154.246094 56.085938 154.246094 51.097656 L 154.246094 50.878906 L 174.976562 50.878906 " id="path38" />
                 """;
-        ItemisIcon currentIcon = new ItemisIcon(icon, FRAME + 10, FRAME + 10, HEADER_HEIGHT - 20, WIDTH/3 );
+
+        StringReader iconReader = new StringReader(icon);
+        int ch = iconReader.read();
+        while (ch != -1)
+        {
+            ch = iconReader.read();
+            System.out.print((char)ch);
+        }
+        ItemisIcon currentIcon = new ItemisIcon(iconReader, FRAME + 10, FRAME + 10, HEADER_HEIGHT - 20, WIDTH/3 );
         return currentIcon;
     }
 
