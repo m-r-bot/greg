@@ -1,8 +1,9 @@
 package org.example;
 
 import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
+//@XmlRootElement(name = "g")
 @XmlType(propOrder = { "g" })
 public class GElement
 {

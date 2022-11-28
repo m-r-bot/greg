@@ -8,8 +8,8 @@ import javax.xml.transform.stream.*;
 
 public class BodyDomHandler implements DomHandler<String, StreamResult> {
 
-    private static final String BODY_START_TAG = "<body>";
-    private static final String BODY_END_TAG = "</body>";
+    private static final String G_START_TAG = "<g>";
+    private static final String G_END_TAG = "</g>";
 
     private StringWriter xmlWriter = new StringWriter();
 
@@ -19,14 +19,14 @@ public class BodyDomHandler implements DomHandler<String, StreamResult> {
 
     public String getElement(StreamResult rt) {
         String xml = rt.getWriter().toString();
-        int beginIndex = xml.indexOf(BODY_START_TAG) + BODY_START_TAG.length();
-        int endIndex = xml.indexOf(BODY_END_TAG);
+        int beginIndex = xml.indexOf(G_START_TAG) + G_START_TAG.length();
+        int endIndex = xml.indexOf(G_END_TAG);
         return xml.substring(beginIndex, endIndex);
     }
 
     public Source marshal(String n, ValidationEventHandler errorHandler) {
         try {
-            String xml = BODY_START_TAG + n.trim() + BODY_END_TAG;
+            String xml = G_START_TAG + n.trim() + G_END_TAG;
             StringReader xmlReader = new StringReader(xml);
             return new StreamSource(xmlReader);
         } catch(Exception e) {
