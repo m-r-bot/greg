@@ -20,16 +20,20 @@ public class TextRectGroup {
     public void setRect(Rect rect) {
         this.rect = rect;
     }
+
     public void setText(Text text) {
         this.text = text;
     }
-
     public void setSecondText(Text secondText) {
         this.secondText = secondText;
     }
 
     public void setThirdText(Text thirdText) {
         this.thirdText = thirdText;
+    }
+
+    public Rect getRect() {
+        return rect;
     }
 
 

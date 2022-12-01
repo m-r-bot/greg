@@ -4,6 +4,7 @@ import javax.xml.bind.annotation.*;
 @XmlRootElement(name = "text")
 @XmlAccessorType(XmlAccessType.NONE)
 public class Text {
+
     public Text(String text, double x, double y, String styleClass) {
         this.text = text;
         this.x = x;
