@@ -8,7 +8,7 @@ import java.io.StringReader;
 @XmlType(propOrder = { "g" })
 public class ItemisIcon {
 
-    public ItemisIcon(StringReader g, double x, double y, double height, double width) {
+    public ItemisIcon(String g, double x, double y, double height, double width) {
         this.g = g;
         this.x = x;
         this.y = y;
@@ -17,7 +17,7 @@ public class ItemisIcon {
     }
 
     public ItemisIcon (){}
-    private StringReader g;
+    private String g;
     private double x;
     private double y;
     private double height;
@@ -43,11 +43,11 @@ public class ItemisIcon {
     }
 
     @XmlElement(name = "g")
-    private StringReader getG() {
+    private String getG() {
         return this.g;
     }
 
-    public void setG (StringReader g) {this.g = g;}
+    public void setG (String g) {this.g = g;}
 
     public void setX(double x) {
         this.x = x;
