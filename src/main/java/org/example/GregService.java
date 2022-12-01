@@ -48,7 +48,7 @@ public class GregService {
     private static final String HEADER_TEXT_STYLE = ".headerText{font-size:75pt; fill:white; font-family:Verdana}";
     private static final String FOOTER_TEXT_STYLE = ".footerText{font-size:12pt; fill:white; font-family:Verdana}";
     private static final String HOLIDAY_TEXT_STYLE = ".holidayText{font-size:3pt; fill:#00457c; font-family:Verdana; font-weight:normal}";
-    private static final String CALENDAR_WEEK_TEXT_STYLE = ".calendarWeekText{font-size:70pt; fill:#cdd1d3; font-family:Verdana; font-weight:bold}";
+    private static final String CALENDAR_WEEK_TEXT_STYLE = ".calendarWeekText{font-size:15pt; fill:#cdd1d3; font-family:Verdana; font-weight:bold}";
     private static final String SECOND_YEAR_DATE_TEXT_STYLE = ".secondDateText{font-size:7pt; fill:#77c3ff; font-family:Verdana; font-weight:bold}";
     private static final String SECOND_YEAR_DAY_TEXT_STYLE = ".secondDayText{font-size:7pt; fill:#77c3ff; font-family:Verdana; font-weight:normal}";
     private static final String SECOND_YEAR_HOLIDAY_TEXT_STYLE = ".secondHolidayText{font-size:3pt; fill:#77c3ff; font-family:Verdana; font-weight:normal}";
@@ -248,7 +248,7 @@ public class GregService {
 
                 //add to Array List
                 textRectGroups.add(group);
-                calendarWeekText.add(getCalendarWeek(date, stylesClass));
+                calendarWeekText.add(getCalendarWeek(date, rect));
             }
         }
 
@@ -299,6 +299,8 @@ public class GregService {
             // Store XML to File
             File file = new File(name + ".svg");
 
+           // file.toString().replace("&lt;" , "<").replace("&rt", ">");
+
 //            Transformer nullTransformer = TransformerFactory.newInstance().newTransformer();
 //            nullTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
 //            nullTransformer.setOutputProperty(OutputKeys.CDATA_SECTION_ELEMENTS, "myElement {myNamespace}myOtherElement");
@@ -306,6 +308,7 @@ public class GregService {
 
             // Writes XML file to file-system
             jaxbMarshaller.marshal(calendar, file);
+
 
 
         } catch (JAXBException e) {
@@ -501,13 +504,28 @@ public class GregService {
         return monthHeaderTextInMethod;
     }
 
-    private static Text getCalendarWeek (LocalDate date, String stylesClass) {
+    private static Text getCalendarWeek (LocalDate date, Rect rect) {
         WeekFields weekField = WeekFields.of(Locale.GERMANY);
         int valueOfCalendarWeek = date.get(weekField.weekOfWeekBasedYear());
-        double xCoordinateOfCalenderWeek;
+        double xCoordinateOfCalenderWeek = 0;
+        double yCoordinateOfCalenderWeek = 0;
 
-        Text calendarWeekText = new Text(String.valueOf(valueOfCalendarWeek), FRAME, HEADER_HEIGHT, "calendarWeekText" );
+        if (rect.getStyleClass() == "nRect") {
+             xCoordinateOfCalenderWeek = Double.parseDouble(rect.getX());
+             yCoordinateOfCalenderWeek = Double.parseDouble(rect.getY());
+        }
+            Text calendarWeekText = new Text(String.valueOf(valueOfCalendarWeek), xCoordinateOfCalenderWeek, yCoordinateOfCalenderWeek, "calendarWeekText" );
+
         return calendarWeekText;
+    }
+
+    private static int countWhiteRectangles (Rect rect, TextRectGroup textRectGroup){
+        String styleClass = rect.getStyleClass();
+
+        ArrayList rects = new ArrayList();
+        rects.add(textRectGroup.getRect());
+
+        return 0;
     }
 
     private static ItemisIcon getItemisIcon () throws IOException {
@@ -531,14 +549,14 @@ public class GregService {
   <path style=" stroke:none;fill-rule:nonzero;fill:white;fill-opacity:1;" d="M 154.257812 44.121094 C 154.421875 37.03125 157.597656 35.875 160.214844 35.875 C 162.832031 35.875 166.113281 36.921875 166.257812 44.121094 Z M 174.976562 50.878906 L 174.976562 47.140625 C 174.976562 34.859375 170.285156 29.125 160.214844 29.125 C 150.886719 29.125 145.539062 35.699219 145.539062 47.140625 L 145.539062 51.097656 C 145.539062 62.636719 151.292969 69.253906 161.332031 69.253906 C 167.976562 69.253906 172.128906 65.519531 174.054688 61.394531 C 171.824219 60.035156 169.472656 58.558594 167.960938 57.625 C 166.980469 59.316406 165.066406 62.035156 161.246094 62.035156 C 155.460938 62.035156 154.246094 56.085938 154.246094 51.097656 L 154.246094 50.878906 L 174.976562 50.878906 " id="path38" />
                 """;
 
-        StringReader iconReader = new StringReader(icon);
-        int ch = iconReader.read();
-        while (ch != -1)
-        {
-            ch = iconReader.read();
-            System.out.print((char)ch);
-        }
-        ItemisIcon currentIcon = new ItemisIcon(iconReader, FRAME + 10, FRAME + 10, HEADER_HEIGHT - 20, WIDTH/3 );
+//        StringReader iconReader = new StringReader(icon);
+//        int ch = iconReader.read();
+//        while (ch != -1)
+//        {
+//            ch = iconReader.read();
+//            //System.out.print((char)ch);
+//        }
+        ItemisIcon currentIcon = new ItemisIcon(icon, FRAME + 10, FRAME + 10, HEADER_HEIGHT - 20, WIDTH/3 );
         return currentIcon;
     }
 
