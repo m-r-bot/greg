@@ -17,13 +17,16 @@ public class Main {
         Locale.setDefault(Locale.US);
 
         //input values for desired year and federal state
-        SvgCalendar calendar = GregService.getGreg(2022,FederalState.SN);
-        GregService.writeCalendarAsSvg(calendar, "calendar-v07");
+        int year = 2022;
+        FederalState federalState = FederalState.SN;
+        String versionName = "calendar-v07";
+        SvgCalendar calendar = GregService.getGreg(year, federalState);
+        GregService.writeCalendarAsSvg(calendar, versionName);
 
-       // File file = new File("C:/Users/mboese/Desktop/Dev/greg/calendar-v06.svg");
-        //String fileContext = FileUtils.readFileToString(file);
-        //fileContext = fileContext.replaceAll("&lt;", "<").replaceAll("&gt;", ">");
-        // FileUtils.write(file, fileContext);
+        File file = new File("C:/Users/mboese/Desktop/Dev/greg/" + versionName + ".svg");
+        String fileContext = FileUtils.readFileToString(file);
+        fileContext = fileContext.replaceAll("&lt;", "<").replaceAll("&gt;", ">");
+        FileUtils.write(file, fileContext);
 
 //        File file = new File("C:/Users/mboese/Desktop/Dev/greg/calendar-v06.svg");
 //        //calendar.toString().replace("&lt;" , "<").replace("&rt", ">");

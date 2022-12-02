@@ -37,9 +37,11 @@ public class SvgCalendar {
     @XmlElement(name = "text")
     List <Text> calendarWeek;
 
+//    @XmlElement (name= "svg")
+//    Logo logo;
+
     @XmlElement (name= "svg")
     ItemisIcon itemisIcon;
-
 
     public void setVersion(String version) {
         this.version = version;
@@ -71,6 +73,11 @@ public class SvgCalendar {
         this.calendarWeek = calendarWeek;
     }
     public void setItemisIcon (ItemisIcon itemisIcon) {this.itemisIcon = itemisIcon;}
+
+//    public void setLogo(Logo logo){
+//        this.logo = logo;
+//    }
+
     public SvgCalendar() {
         setXmlns("http://www.w3.org/2000/svg");
         setVersion("1.1");
