@@ -141,4 +141,8 @@ public class HolidayService {
         List<Holiday> regionHolidays = holidays.stream().filter(holiday -> holiday.isNotInRegion(state.getFederalStateName())).toList();
         return regionHolidays;
     }
+    public boolean isHoliday(LocalDate date, List<Holiday> holidays){
+        return holidays.stream().filter(holiday -> holiday.isHoliday(date)).findAny().isPresent();
+    }
+
     }

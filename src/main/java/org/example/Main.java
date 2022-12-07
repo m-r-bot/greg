@@ -24,7 +24,7 @@ public class Main {
         SvgCalendar calendar = service.getGreg(year, federalState);
         service.writeCalendarAsSvg(calendar, versionName);
 
-        File file = new File("C:/Users/mboese/Desktop/Dev/greg/" + versionName + ".svg");
+        File file = new File(versionName + ".svg");
         String fileContext = FileUtils.readFileToString(file);
         fileContext = fileContext.replaceAll("&lt;", "<").replaceAll("&gt;", ">");
         FileUtils.write(file, fileContext);

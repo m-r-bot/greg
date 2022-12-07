@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.WeekFields;
 import java.util.*;
+import static java.time.temporal.TemporalAdjusters.firstInMonth;
 
 public class GregService {
 
@@ -70,15 +71,24 @@ public class GregService {
             ;
 
     private int counter = 0;
+    private Set<Integer> kws;
+    boolean resetted = false;
+
     private FederalState federalState;
+    HolidayService holidayService;
+    List<Holiday> holidays;
 
     public SvgCalendar getGreg(int year, FederalState state) throws IOException {
+        int currentYear = year;
 
         // initialize
+        this.kws = new HashSet<>();
         this.federalState = state;
         SvgCalendar svg = new SvgCalendar();
         Style style = new Style();
-        HolidayService holidayService = new HolidayService();
+        holidayService = new HolidayService();
+        holidays = holidayService.determineGermanHolidays(year);
+        holidays.addAll(holidayService.determineGermanHolidays(year+1));
 
         ArrayList<TextRectGroup> textRectGroups = new ArrayList<>();
         List<Text> monthHeaderText = new ArrayList<>();
@@ -152,12 +162,19 @@ public class GregService {
                     group.setThirdText(holidayText);
                 }
 
+              
                 //add to Array List
                 textRectGroups.add(group);
-                calendarWeekText.add(getCalendarWeek(date, group, textRectGroups));
+                    if(date.getDayOfWeek().equals(DayOfWeek.MONDAY)){
+                        Optional<Text> label = getOptionalCWLabel(date, currentYear);
+                        if(label.isPresent()){
+                            calendarWeekText.add(label.get());
+                        }
+                    }
+       
+                
             }
         }
-
 
         // set everything
         svg.setStyle(style);
@@ -272,7 +289,7 @@ public class GregService {
         return holidayForCurrentDate.isPresent();
     }
 
-    @NotNull
+   
     private  Text getHolidayTextForHolidayInOtherState(double xCoordinateOfCurrentMonth, double y, Optional<Holiday> holidayInOtherStateForCurrentDate, int cmonth) {
         Text holidayText = new Text();
 
@@ -287,7 +304,7 @@ public class GregService {
         return holidayText;
     }
 //TODO works but check if theres is a more elegant solution than checking for cmonth every single time
-    @NotNull
+   
     private  Text getHolidayTextForHolidayInState(double xCoordinateOfCurrentMonth, double y, Optional<Holiday> holidayForCurrentDate, int cmonth) {
         Text holidayText = new Text();
 
@@ -302,7 +319,7 @@ public class GregService {
         return holidayText;
     }
 
-    @NotNull
+   
     private  Optional<Holiday> getHolidayInOtherStateForCurrentDate(int year, FederalState state, HolidayService holidayService, LocalDate date) {
         Optional<Holiday> holidayInOtherStateForCurrentDate = holidayService.getHolidaysByYearAndOtherFederalStates(year, state)
                 .stream()
@@ -311,7 +328,7 @@ public class GregService {
         return holidayInOtherStateForCurrentDate;
     }
 
-    @NotNull
+   
     private  Optional<Holiday> getHolidayForCurrentDate(int year, FederalState state, HolidayService holidayService, LocalDate date) {
         Optional<Holiday> holidayForCurrentDate = holidayService.getHolidaysByYearAndState(year, state)
                 .stream()
@@ -320,12 +337,12 @@ public class GregService {
         return holidayForCurrentDate;
     }
 
-    @NotNull
+   
     private  String getDateString(LocalDate date) {
         return date.format(DateTimeFormatter.ofPattern("dd"));
     }
 
-    @NotNull
+   
     private  String getDayName(LocalDate date) {
         String dayName = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.GERMANY)//
                 .substring(0, 2)//
@@ -333,12 +350,12 @@ public class GregService {
         return dayName;
     }
 
-    @NotNull
+   
     private  Rect getRect(double xCoordinateOfCurrentMonth, double y, String stylesClass) {
         return new Rect(xCoordinateOfCurrentMonth, y, RECT_WIDTH, RECT_HEIGHT, stylesClass);
     }
 
-    @NotNull
+   
     private  Text getDayText(double xCoordinateOfCurrentMonth, double y, String dayName, int cmonth) {
         Text dayText = new Text();
 
@@ -353,7 +370,7 @@ public class GregService {
         return dayText;
     }
 
-    @NotNull
+   
     private  Text getDateText(double xCoordinateOfCurrentMonth, double y, String dateString, int cmonth) {
         //create svg text
         Text dateText = new Text();
@@ -434,44 +451,53 @@ public class GregService {
         return monthHeaderTextInMethod;
     }
 
-    private Text getCalendarWeek (LocalDate date, TextRectGroup group, ArrayList textRectGroup) {
+    private Text getCalendarWeek (LocalDate date, TextRectGroup group) {
         WeekFields weekField = WeekFields.of(Locale.GERMANY);
         int valueOfCalendarWeek = date.get(weekField.weekOfWeekBasedYear());
-
-        double xCoordinateOfCalenderWeek = 0;
-        double yCoordinateOfCalenderWeek = 0;
-//
-//        if (rect.getStyleClass() == "nRect") {
-//            xCoordinateOfCalenderWeek = Double.parseDouble(rect.getX()) + RECT_WIDTH/2;
-//            yCoordinateOfCalenderWeek = Double.parseDouble(rect.getY());
-//        }
-
-        if (countWhiteRectangles(group, textRectGroup) == 3){
-            xCoordinateOfCalenderWeek = Double.parseDouble(group.getRect().getX()) + RECT_WIDTH/2;
-            yCoordinateOfCalenderWeek = Double.parseDouble(group.getRect().getY());
-        }
-            Text calendarWeekText = new Text(String.valueOf(valueOfCalendarWeek), xCoordinateOfCalenderWeek, yCoordinateOfCalenderWeek, "calendarWeekText" );
-
+        double xCoordinateOfCalenderWeek = Double.parseDouble(group.getRect().getX()) + RECT_WIDTH/2;;
+        double yCoordinateOfCalenderWeek =Double.parseDouble(group.getRect().getY());
+        Text calendarWeekText = new Text(String.valueOf(valueOfCalendarWeek), xCoordinateOfCalenderWeek, yCoordinateOfCalenderWeek, "calendarWeekText" );
+        calendarWeekText.setDominantBaseline("text-top");
         return calendarWeekText;
     }
 
-    private int countWhiteRectangles (TextRectGroup group, ArrayList TextRectGroups ){
-//        ArrayList rects = new ArrayList();
-        //rects.add(textRectGroup.getRect());
-//        rects.add(svg.getGroups());
-//        rects.stream().forEachOrdered();
+    private Text getCWLabelEl(LocalDate date, boolean isPrimaryYear){
+        WeekFields weekField = WeekFields.of(Locale.GERMANY);
+        int valueOfCalendarWeek = date.get(weekField.weekOfWeekBasedYear());
+        int cmonth = isPrimaryYear ? date.getMonthValue() -1 : date.getMonthValue() + 12 - 1;
+        double xCoordinateOfCurrentMonth = (cmonth * RECT_WIDTH) + FRAME + 55; 
+        double yCoordinateOfCurrentMonth = getYForOldLogic(date.getDayOfMonth()-1) + 5;
+        System.out.printf("DAY IS: %d-%d-%d, %s\n",date.getYear(),date.getMonthValue(),date.getDayOfMonth(),date.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.GERMANY));
+        Text calendarWeekText = new Text(String.valueOf(valueOfCalendarWeek), xCoordinateOfCurrentMonth, yCoordinateOfCurrentMonth, "calendarWeekText" );
+        calendarWeekText.setDominantBaseline("hanging");
+        return calendarWeekText;
+    }
+    // unique handle for kw year
+    private int getKwYear(LocalDate date) {
+        WeekFields weekField = WeekFields.of(Locale.GERMANY);
+        return date.get(weekField.weekOfWeekBasedYear());
+    } 
+    LocalDate getFirstMondayInYear(int year) {
+        return LocalDate.of(year, 1, 1).with(firstInMonth(DayOfWeek.MONDAY));
+    }
 
-
-        for (int i = 1; i < TextRectGroups.size(); i ++) {
-
-            if (group.getRect().getStyleClass().equals("nRect")) {
-                counter++;
-                System.out.println(counter);
-            } else {
-                counter = 0;
+    public Optional<Text> getOptionalCWLabel(LocalDate date, int year) {
+        boolean isPrimaryYear = year == date.getYear();
+        for (int i = date.getDayOfWeek().getValue(); i < DayOfWeek.SATURDAY.getValue(); i++) {
+            if(isWeekend(date.getDayOfWeek()) || isWeekend(date.plusDays(1).getDayOfWeek()) || date.lengthOfMonth() - date.getDayOfMonth() < 1) {
+                date = date.plusDays(1);
+                continue;
+            }
+            else if(holidayService.isHoliday(date, holidays) || holidayService.isHoliday(date.plusDays(1), holidays)) {
+                date = date.plusDays(1);
+                continue;
+            }
+            else {
+                Text el = getCWLabelEl(date, isPrimaryYear);
+                return Optional.ofNullable(el);
             }
         }
-        return counter;
+        return Optional.empty();
     }
 
     private ItemisIcon getItemisIcon () throws IOException {
