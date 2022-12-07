@@ -20,8 +20,9 @@ public class Main {
         int year = 2022;
         FederalState federalState = FederalState.SN;
         String versionName = "calendar-v07";
-        SvgCalendar calendar = GregService.getGreg(year, federalState);
-        GregService.writeCalendarAsSvg(calendar, versionName);
+        GregService service = new GregService();
+        SvgCalendar calendar = service.getGreg(year, federalState);
+        service.writeCalendarAsSvg(calendar, versionName);
 
         File file = new File("C:/Users/mboese/Desktop/Dev/greg/" + versionName + ".svg");
         String fileContext = FileUtils.readFileToString(file);

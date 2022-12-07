@@ -82,4 +82,5 @@ public class Rect {
     public String getHeight() {
         return String.format("%.2f",height);
     }
+
 }

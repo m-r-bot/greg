@@ -34,18 +34,19 @@ public class SvgCalendar {
 
     @XmlElement(name = "text")
     List<Text> monthHeader;
+
     @XmlElement(name = "text")
     List <Text> calendarWeek;
 
 //    @XmlElement (name= "svg")
 //    Logo logo;
-
     @XmlElement (name= "svg")
     ItemisIcon itemisIcon;
 
     public void setVersion(String version) {
         this.version = version;
     }
+
     public void setXmlns(String xmlns) {
         this.xmlns = xmlns;
     }
@@ -56,10 +57,10 @@ public class SvgCalendar {
         this.viewbox = viewbox;
     }
 
-
     public void setHeader(TextRectGroup header) {
         this.header = header;
     }
+
     public void setGroups(ArrayList<TextRectGroup> groups) {
         this.groups = groups;
     }
@@ -76,6 +77,9 @@ public class SvgCalendar {
 
 //    public void setLogo(Logo logo){
 //        this.logo = logo;
+public ArrayList<TextRectGroup> getGroups() {
+    return groups;
+}
 //    }
 
     public SvgCalendar() {
