@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 public class GregServiceTest {
 
-    GregService gregService = new GregService(FederalState.SN);
+    GregService gregService = new GregService();
 
         @Test
         public void testIsHolidayInState(){

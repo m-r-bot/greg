@@ -1,4 +1,4 @@
-package org.example;
+package org.example.tags;
 
 
 import javax.xml.bind.annotation.XmlAccessType;

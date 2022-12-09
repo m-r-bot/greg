@@ -1,5 +1,9 @@
 package org.example;
 
+import org.example.tags.Style;
+import org.example.tags.Text;
+import org.example.tags.TextRectGroup;
+
 import java.util.ArrayList;
 import java.util.List;
 
