@@ -29,32 +29,6 @@ public class Main {
         fileContext = fileContext.replaceAll("&lt;", "<").replaceAll("&gt;", ">");
         FileUtils.write(file, fileContext);
 
-//        File file = new File("C:/Users/mboese/Desktop/Dev/greg/calendar-v06.svg");
-//        //calendar.toString().replace("&lt;" , "<").replace("&rt", ">");
-//       try {
-//           BufferedReader br = new BufferedReader(new FileReader(file));
-//
-//           String line;
-//           while ((line = br.readLine()) != null) {
-//               String str = line.replaceAll("&lt;", "<").replaceAll("&gt;", ">");
-//               System.out.println(str);
-//
-//               BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-//               bw.write(str);
-//               bw.wait(3000); // warum owned er das nicht
-//               bw.close();
-//           }
-//           br.close();
-//
-//       } catch (IOException e){
-//           e.printStackTrace();
-//       } catch (InterruptedException e) {
-//           throw new RuntimeException(e);
-//       }
-
-
-
-
     }
 
 }

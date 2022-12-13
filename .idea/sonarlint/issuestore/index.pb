@@ -11,9 +11,5 @@ S
 #src/main/java/org/example/Logo.java,0\2\026411c863d6eeafca1ba7eddb90835499b1d1dc
 Y
 )src/main/java/org/example/HolidayAPI.java,a\d\ade53990b918bfca10ce37ceb3ee3c1813500f37
-]
--src/main/java/org/example/HolidayService.java,1\9\19e8be2e1689d6d4abf098adf5dc5e1e60a23f68
-R
-"src/test/java/GregServiceTest.java,c\d\cd8b93c7df2286f724f2bbb9ed06a4497cb9f0a8
 V
 &src/main/java/org/example/Holiday.java,d\7\d72c185898cfcdd88e9773fbeb6d19f0473dcbc8

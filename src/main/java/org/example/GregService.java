@@ -2,7 +2,6 @@ package org.example;
 
 
 import org.example.types.FederalState;
-import org.jetbrains.annotations.NotNull;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -79,7 +78,6 @@ public class GregService {
     List<Holiday> holidays;
 
     public SvgCalendar getGreg(int year, FederalState state) throws IOException {
-        int currentYear = year;
 
         // initialize
         this.kws = new HashSet<>();
@@ -104,10 +102,11 @@ public class GregService {
             // initialize x coordinate
             double xCoordinateOfCurrentMonth = (cmonth * RECT_WIDTH) + FRAME;
 
+            int currentYear = year;
             //if clause solves enum issue to draw 13th month issue
             if(cmonth == 12) {
                 isFollowingYear = true;
-                year = year + 1;
+                currentYear = year + 1;
             }
             Month month = getMonth(cmonth);
 
@@ -116,23 +115,22 @@ public class GregService {
 
 
             // loop over days for 1 month
-            for (int day = 0; day < month.length(isLeapYear(year)); day++) {
+            for (int day = 0; day < month.length(isLeapYear(currentYear)); day++) {
 
                 //initialize y coordinate
-                double y = getYForOldLogic(day);
+                double y = getY(day);
 
                 //define time variables
-                LocalDate date = LocalDate.of(year, month, day + 1);
+                LocalDate date = LocalDate.of(currentYear, month, day + 1);
                 DayOfWeek curDayOfWeek = date.getDayOfWeek();
                 boolean isWeekend = isWeekend(curDayOfWeek);
 
                 //checks for a holiday on the current date
-                Optional<Holiday> holidayForCurrentDate = getHolidayForCurrentDate(year, state, holidayService, date);
-                Optional<Holiday> holidayInOtherStateForCurrentDate = getHolidayInOtherStateForCurrentDate(year, state, holidayService, date);
+                Optional<Holiday> holidayForCurrentDate = holidayService.getHolidayForCurrentDate(currentYear, state, date);
+                Optional<Holiday> holidayInOtherStateForCurrentDate = holidayService.getHolidayInOtherStateForCurrentDate(currentYear, state, date);
 
                 boolean isHolidayInState = isHolidayInState(holidayForCurrentDate);
                 boolean isHolidayInOtherSates = isHolidayInOtherSates(holidayInOtherStateForCurrentDate);
-
 
                 //check for colour of day rectangle
                 String stylesClass = getStylesClass(isHolidayInState, isHolidayInOtherSates, isWeekend, cmonth);
@@ -165,8 +163,10 @@ public class GregService {
               
                 //add to Array List
                 textRectGroups.add(group);
+
+                //create calendar week
                     if(date.getDayOfWeek().equals(DayOfWeek.MONDAY)){
-                        Optional<Text> label = getOptionalCWLabel(date, currentYear);
+                        Optional<Text> label = getOptionalCWLabel(date, year);
                         if(label.isPresent()){
                             calendarWeekText.add(label.get());
                         }
@@ -178,7 +178,7 @@ public class GregService {
 
         // set everything
         svg.setStyle(style);
-        svg.setHeader(getHeader(year-1)); //TODO make this pretty
+        svg.setHeader(getHeader(year));
         svg.setItemisIcon(getItemisIcon());
 //        Logo logo = new Logo();
 //        logo.setX("25");
@@ -265,10 +265,6 @@ public class GregService {
         }
     }
 
-    private boolean isSecondYear (int cmonth){
-        return cmonth == 12;
-    }
-
     public boolean isHolidayInCurrentFederalState(LocalDate currentDay) {
 
         HolidayService holidayService = new HolidayService();
@@ -300,7 +296,7 @@ public class GregService {
             holidayText = new Text(holidayInOtherStateForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "holidayText");
         }
         holidayText.setTextAnchor("end");
-        holidayText.setDominantBaseline("top-bottom");
+        holidayText.setDominantBaseline("auto");
         return holidayText;
     }
 //TODO works but check if theres is a more elegant solution than checking for cmonth every single time
@@ -315,26 +311,8 @@ public class GregService {
              holidayText = new Text(holidayForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "holidayText");
         }
         holidayText.setTextAnchor("end");
-        holidayText.setDominantBaseline("top-bottom");
+        holidayText.setDominantBaseline("auto");
         return holidayText;
-    }
-
-   
-    private  Optional<Holiday> getHolidayInOtherStateForCurrentDate(int year, FederalState state, HolidayService holidayService, LocalDate date) {
-        Optional<Holiday> holidayInOtherStateForCurrentDate = holidayService.getHolidaysByYearAndOtherFederalStates(year, state)
-                .stream()
-                .filter(holiday -> holiday.isHoliday(date))
-                .findFirst();
-        return holidayInOtherStateForCurrentDate;
-    }
-
-   
-    private  Optional<Holiday> getHolidayForCurrentDate(int year, FederalState state, HolidayService holidayService, LocalDate date) {
-        Optional<Holiday> holidayForCurrentDate = holidayService.getHolidaysByYearAndState(year, state)
-                .stream()
-                .filter(holiday -> holiday.isHoliday(date))
-                .findFirst();
-        return holidayForCurrentDate;
     }
 
    
@@ -356,7 +334,7 @@ public class GregService {
     }
 
    
-    private  Text getDayText(double xCoordinateOfCurrentMonth, double y, String dayName, int cmonth) {
+    private Text getDayText(double xCoordinateOfCurrentMonth, double y, String dayName, int cmonth) {
         Text dayText = new Text();
 
         if (cmonth == 12) {
@@ -366,12 +344,12 @@ public class GregService {
              dayText = new Text(dayName, xCoordinateOfCurrentMonth + 17, y, "dayText");
         }
         dayText.setTextAnchor("start");
-        dayText.setDominantBaseline("hanging");
+        dayText.setDominantBaseline("auto");
         return dayText;
     }
 
    
-    private  Text getDateText(double xCoordinateOfCurrentMonth, double y, String dateString, int cmonth) {
+    private Text getDateText(double xCoordinateOfCurrentMonth, double y, String dateString, int cmonth) {
         //create svg text
         Text dateText = new Text();
 
@@ -382,11 +360,11 @@ public class GregService {
             dateText = new Text(dateString, xCoordinateOfCurrentMonth, y, "dateText");
         }
         dateText.setTextAnchor("start");
-        dateText.setDominantBaseline("hanging");
+        dateText.setDominantBaseline("auto");
         return dateText;
     }
 
-    private  String getStylesClass(boolean isHolidayInState, boolean isHolidayInOtherSates, boolean isWeekend, int cmonth) {
+    private String getStylesClass(boolean isHolidayInState, boolean isHolidayInOtherSates, boolean isWeekend, int cmonth) {
         String stylesClass;
 //TODO change to defensive programming so break up the nested if function
         if (cmonth == 12 && (isWeekend || isHolidayInState || isHolidayInOtherSates)) {
@@ -404,7 +382,7 @@ public class GregService {
         return stylesClass;
     }
 
-    private  double getYForOldLogic(int day) {
+    private double getY(int day) {
         return FRAME + HEADER_HEIGHT + UPPER_SPACE_HEIGHT + (day * RECT_HEIGHT);
     }
 
@@ -412,12 +390,12 @@ public class GregService {
         return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
     }
 
-    private  TextRectGroup getHeader(int year) {
+    private TextRectGroup getHeader(int year) {
         TextRectGroup headerGroup = new TextRectGroup();
         headerGroup.setRect(new Rect(FRAME, FRAME, WIDTH - 2*FRAME, HEADER_HEIGHT, "headerRect"));
         Text headerText = new Text(String.format("%d", year), WIDTH - 1.5*FRAME, HEADER_HEIGHT + 5, "headerText");
         headerText.setTextAnchor("end");
-        headerText.setDominantBaseline("text-top");
+        headerText.setDominantBaseline("auto");
 
         //Text iconText = new Text();
         headerGroup.setText(headerText);
@@ -425,7 +403,7 @@ public class GregService {
         return headerGroup;
     }
 
-    private  TextRectGroup getFooter () {
+    private TextRectGroup getFooter () {
         // create and fill footer
         TextRectGroup footerGroup = new TextRectGroup();
         footerGroup.setRect(new Rect(FRAME, HEIGHT - FOOTER_HEIGHT - FRAME, WIDTH - 2*FRAME, FOOTER_HEIGHT, "headerRect"));
@@ -437,7 +415,7 @@ public class GregService {
         return footerGroup;
     }
 
-    private  Text getMonthHeader(Month month, Boolean isFollowingYear){
+    private Text getMonthHeader(Month month, Boolean isFollowingYear){
         //checks if it is the second January and assigns xCoordinate accordingly
         double xCoordinateOfCurrentMonth = isFollowingYear ?  ( (month.getValue() - 1 + 12) * RECT_WIDTH) + FRAME : ( (month.getValue() - 1) * RECT_WIDTH) + FRAME;
 
@@ -451,47 +429,43 @@ public class GregService {
         return monthHeaderTextInMethod;
     }
 
-    private Text getCalendarWeek (LocalDate date, TextRectGroup group) {
-        WeekFields weekField = WeekFields.of(Locale.GERMANY);
-        int valueOfCalendarWeek = date.get(weekField.weekOfWeekBasedYear());
-        double xCoordinateOfCalenderWeek = Double.parseDouble(group.getRect().getX()) + RECT_WIDTH/2;;
-        double yCoordinateOfCalenderWeek =Double.parseDouble(group.getRect().getY());
-        Text calendarWeekText = new Text(String.valueOf(valueOfCalendarWeek), xCoordinateOfCalenderWeek, yCoordinateOfCalenderWeek, "calendarWeekText" );
-        calendarWeekText.setDominantBaseline("text-top");
-        return calendarWeekText;
-    }
-
     private Text getCWLabelEl(LocalDate date, boolean isPrimaryYear){
+
+        //calculate number of calendar week
         WeekFields weekField = WeekFields.of(Locale.GERMANY);
         int valueOfCalendarWeek = date.get(weekField.weekOfWeekBasedYear());
+        String value = String.format("%02d", valueOfCalendarWeek);
         int cmonth = isPrimaryYear ? date.getMonthValue() -1 : date.getMonthValue() + 12 - 1;
-        double xCoordinateOfCurrentMonth = (cmonth * RECT_WIDTH) + FRAME + 55; 
-        double yCoordinateOfCurrentMonth = getYForOldLogic(date.getDayOfMonth()-1) + 5;
-        System.out.printf("DAY IS: %d-%d-%d, %s\n",date.getYear(),date.getMonthValue(),date.getDayOfMonth(),date.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.GERMANY));
-        Text calendarWeekText = new Text(String.valueOf(valueOfCalendarWeek), xCoordinateOfCurrentMonth, yCoordinateOfCurrentMonth, "calendarWeekText" );
+
+        double xCoordinateOfCurrentMonth = (cmonth * RECT_WIDTH) + FRAME + 45;
+        double yCoordinateOfCurrentMonth = getY(date.getDayOfMonth()-1) + 5;
+
+        Text calendarWeekText = new Text(value, xCoordinateOfCurrentMonth, yCoordinateOfCurrentMonth, "calendarWeekText" );
         calendarWeekText.setDominantBaseline("hanging");
         return calendarWeekText;
     }
-    // unique handle for kw year
-    private int getKwYear(LocalDate date) {
-        WeekFields weekField = WeekFields.of(Locale.GERMANY);
-        return date.get(weekField.weekOfWeekBasedYear());
-    } 
-    LocalDate getFirstMondayInYear(int year) {
-        return LocalDate.of(year, 1, 1).with(firstInMonth(DayOfWeek.MONDAY));
-    }
 
     public Optional<Text> getOptionalCWLabel(LocalDate date, int year) {
+
+        //check if variable year equals the scanned year or if the following year for the second February is being handled
         boolean isPrimaryYear = year == date.getYear();
+
+        //create label only once per week, for German week end/start is being defined as Saturday
         for (int i = date.getDayOfWeek().getValue(); i < DayOfWeek.SATURDAY.getValue(); i++) {
+
+            //checks if the currently being checked day is a weekend or at the end of month and jumps to next day if true
             if(isWeekend(date.getDayOfWeek()) || isWeekend(date.plusDays(1).getDayOfWeek()) || date.lengthOfMonth() - date.getDayOfMonth() < 1) {
                 date = date.plusDays(1);
                 continue;
             }
+
+            //checks if Monday or Tuesday are a holiday and jumps to next day if true
             else if(holidayService.isHoliday(date, holidays) || holidayService.isHoliday(date.plusDays(1), holidays)) {
                 date = date.plusDays(1);
                 continue;
             }
+
+            //creates Label if possible
             else {
                 Text el = getCWLabelEl(date, isPrimaryYear);
                 return Optional.ofNullable(el);

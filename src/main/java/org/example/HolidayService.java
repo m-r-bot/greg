@@ -145,4 +145,21 @@ public class HolidayService {
         return holidays.stream().filter(holiday -> holiday.isHoliday(date)).findAny().isPresent();
     }
 
+    public Optional<Holiday> getHolidayForCurrentDate(int year, FederalState state, LocalDate date) {
+        Optional<Holiday> holidayForCurrentDate = getHolidaysByYearAndState(year, state)
+                .stream()
+                .filter(holiday -> holiday.isHoliday(date))
+                .findFirst();
+        return holidayForCurrentDate;
+    }
+
+    public Optional<Holiday> getHolidayInOtherStateForCurrentDate(int year, FederalState state, LocalDate date) {
+        Optional<Holiday> holidayInOtherStateForCurrentDate = getHolidaysByYearAndOtherFederalStates(year, state)
+                .stream()
+                .filter(holiday -> holiday.isHoliday(date))
+                .findFirst();
+        return holidayInOtherStateForCurrentDate;
+    }
+    
+
     }
