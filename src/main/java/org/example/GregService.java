@@ -338,13 +338,16 @@ public class GregService {
         Text dayText = new Text();
 
         if (cmonth == 12) {
-             dayText = new Text(dayName, xCoordinateOfCurrentMonth + 17, y, "secondDayText");
+            //add textsize to y cooridante to account for invalid attribute
+             dayText = new Text(dayName, xCoordinateOfCurrentMonth + 17, y + 7.5, "secondDayText");
         }
         else{
-             dayText = new Text(dayName, xCoordinateOfCurrentMonth + 17, y, "dayText");
+             dayText = new Text(dayName, xCoordinateOfCurrentMonth + 17, y+ 7.5, "dayText");
         }
         dayText.setTextAnchor("start");
-        dayText.setDominantBaseline("auto");
+
+        //dominant baseline is not a valid attribute for inkspace
+        //dayText.setDominantBaseline("auto");
         return dayText;
     }
 
@@ -354,10 +357,10 @@ public class GregService {
         Text dateText = new Text();
 
         if (cmonth == 12) {
-            dateText = new Text(dateString, xCoordinateOfCurrentMonth, y, "secondDateText");
+            dateText = new Text(dateString, xCoordinateOfCurrentMonth, y + 7.5, "secondDateText");
         }
         else{
-            dateText = new Text(dateString, xCoordinateOfCurrentMonth, y, "dateText");
+            dateText = new Text(dateString, xCoordinateOfCurrentMonth, y + 7.5, "dateText");
         }
         dateText.setTextAnchor("start");
         dateText.setDominantBaseline("auto");
