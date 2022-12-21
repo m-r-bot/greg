@@ -17,7 +17,8 @@ public class Main {
         Locale.setDefault(Locale.US);
 
         //input values for desired year and federal state
-        int year = 2022;
+        int year = 2023;
+        //to change federal state select fitting
         FederalState federalState = FederalState.SN;
         String versionName = "calendar-v07";
         GregService service = new GregService();

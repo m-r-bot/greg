@@ -302,7 +302,7 @@ public class GregService {
 //TODO works but check if theres is a more elegant solution than checking for cmonth every single time
    
     private  Text getHolidayTextForHolidayInState(double xCoordinateOfCurrentMonth, double y, Optional<Holiday> holidayForCurrentDate, int cmonth) {
-        Text holidayText = new Text();
+        Text holidayText;
 
         if (cmonth == 12 ){
              holidayText = new Text(holidayForCurrentDate.get().getName(), xCoordinateOfCurrentMonth + RECT_WIDTH, y + RECT_HEIGHT-1, "secondHolidayText");
@@ -363,7 +363,6 @@ public class GregService {
             dateText = new Text(dateString, xCoordinateOfCurrentMonth, y + 7.5, "dateText");
         }
         dateText.setTextAnchor("start");
-        dateText.setDominantBaseline("auto");
         return dateText;
     }
 
@@ -398,9 +397,6 @@ public class GregService {
         headerGroup.setRect(new Rect(FRAME, FRAME, WIDTH - 2*FRAME, HEADER_HEIGHT, "headerRect"));
         Text headerText = new Text(String.format("%d", year), WIDTH - 1.5*FRAME, HEADER_HEIGHT + 5, "headerText");
         headerText.setTextAnchor("end");
-        headerText.setDominantBaseline("auto");
-
-        //Text iconText = new Text();
         headerGroup.setText(headerText);
 
         return headerGroup;
@@ -410,11 +406,11 @@ public class GregService {
         // create and fill footer
         TextRectGroup footerGroup = new TextRectGroup();
         footerGroup.setRect(new Rect(FRAME, HEIGHT - FOOTER_HEIGHT - FRAME, WIDTH - 2*FRAME, FOOTER_HEIGHT, "headerRect"));
-        Text footerText = new Text("ITEMIS LEIPZIG 2022 ".repeat(5), WIDTH / 2, (HEIGHT - FOOTER_HEIGHT) + (FOOTER_HEIGHT / 2), "footerText");
+   /*     Text footerText = new Text("ITEMIS LEIPZIG 2022 ".repeat(5), WIDTH / 2, (HEIGHT - FOOTER_HEIGHT) + (FOOTER_HEIGHT / 2), "footerText");
         footerText.setTextAnchor("middle");
         footerText.setDominantBaseline("middle");
         footerGroup.setText(footerText);
-
+*/
         return footerGroup;
     }
 
