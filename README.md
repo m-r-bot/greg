@@ -6,10 +6,10 @@ Simply change the integer value for year in the main method and select the desir
 
 ## Motivation
 Instead of the Batik SVG library, I decided to use JAXB to render templates for the most important objects for the calender:
-  rectangle element
-  text element
-  group element consisting of a rectangle and multiple text elements 
-  svg element (to display the icon)
+  - rectangle element
+  - text element
+  - group element consisting of a rectangle and multiple text elements 
+  - svg element (to display the icon)
   
 New templates need to be added to the "SVG Calender" class.
 
